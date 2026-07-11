@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  admin
+  sales_manager
+  hiring_manager
+  sales_rep
+  closer
+  project_manager
+  hybrid
+  client
+}
+
+enum LeadSegment {
+  active
+  won
+  trashed
+}
+
+enum LeadSource {
+  native
+  csv
+  ghl
+  manual
+}
+
+enum CallStatus {
+  initiated
+  ringing
+  in_progress
+  completed
+  no_answer
+  busy
+  failed
+  canceled
+}
+
+enum TaskStatus {
+  open
+  completed
+  canceled
+}
+
+model Profile {
+  id                    String   @id @db.Uuid
+  email                 String   @unique
+  fullName              String?  @map("full_name")
+  role                  UserRole @default(sales_rep)
+  phone                 String?
+  timezone              String   @default("America/New_York")
+  googleCalendarId      String?  @map("google_calendar_id")
+  dialerHoursExtended   Boolean  @default(false) @map("dialer_hours_extended")
+  twilioPhoneNumber     String?  @map("twilio_phone_number")
+  ghlContactId          String?  @map("ghl_contact_id")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  assignedLeads Lead[] @relation("LeadSetter")
+  closedLeads   Lead[] @relation("LeadCloser")
+  calls         Call[]
+  tasks         Task[]
+  smartViews    SmartView[]
+
+  @@map("profiles")
+}
+
+model Lead {
+  id              String      @id @default(cuid())
+  businessName    String      @map("business_name")
+  contactName     String?     @map("contact_name")
+  phone           String?
+  email           String?
+  website         String?
+  revenue         String?
+  location        String?
+  industry        String?
+  sicCode         String?     @map("sic_code")
+  market          String?
+  type            String?
+  source          LeadSource  @default(native)
+  segment         LeadSegment @default(active)
+  sdrStatus       String      @default("no_contact") @map("sdr_status")
+  externalId      String?     @map("external_id")
+  externalSource  String?     @map("external_source")
+  notes           String?
+  dialedCount     Int         @default(0) @map("dialed_count")
+  setterId        String?     @map("setter_id") @db.Uuid
+  closerId        String?     @map("closer_id") @db.Uuid
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  setter Profile? @relation("LeadSetter", fields: [setterId], references: [id], onDelete: SetNull)
+  closer Profile? @relation("LeadCloser", fields: [closerId], references: [id], onDelete: SetNull)
+  calls  Call[]
+  tasks  Task[]
+
+  @@index([segment])
+  @@index([setterId])
+  @@index([phone])
+  @@index([externalId, externalSource])
+  @@map("leads")
+}
+
+model Call {
+  id              String     @id @default(cuid())
+  leadId          String     @map("lead_id")
+  userId          String     @map("user_id") @db.Uuid
+  twilioCallSid   String?    @unique @map("twilio_call_sid")
+  status          CallStatus @default(initiated)
+  disposition     String?
+  durationSeconds Int?       @map("duration_seconds")
+  recordingUrl    String?    @map("recording_url")
+  startedAt       DateTime   @default(now()) @map("started_at")
+  endedAt         DateTime?  @map("ended_at")
+
+  lead Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+  @@index([leadId])
+  @@map("calls")
+}
+
+model Task {
+  id        String     @id @default(cuid())
+  leadId    String     @map("lead_id")
+  userId    String     @map("user_id") @db.Uuid
+  note      String
+  dueAt     DateTime   @map("due_at")
+  status    TaskStatus @default(open)
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  lead Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dueAt])
+  @@index([status])
+  @@map("tasks")
+}
+
+model SmartView {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id") @db.Uuid
+  name      String
+  filters   Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("smart_views")
+}
+
+model OrgSettings {
+  id              String  @id @default("default")
+  ghlEnabled      Boolean @default(false) @map("ghl_enabled")
+  ghlLocationId   String? @map("ghl_location_id")
+  ghlApiKey       String? @map("ghl_api_key")
+  useGhlCalendar  Boolean @default(false) @map("use_ghl_calendar")
+  useGhlWorkflows Boolean @default(false) @map("use_ghl_workflows")
+
+  @@map("org_settings")
+}
