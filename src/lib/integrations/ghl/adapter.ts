@@ -3,7 +3,7 @@ import type {
   ContactSyncInput,
   ContactSyncResult,
   IntegrationAdapter,
-} from "./types";
+} from "../types";
 
 /**
  * Go High Level adapter stub.
