@@ -53,6 +53,20 @@ This repo uses **HTTPS** (same as `audit_app`), not SSH:
 https://github.com/bkelly623/crm.git
 ```
 
+## Agent / CI automation (recommended)
+
+The Vercel Cursor plugin **cannot write** env vars. For fully automated deploys, use:
+
+```bash
+cp .env.vercel-sync.example .env.vercel-sync
+# Fill VERCEL_TOKEN, SUPABASE_SECRET_KEY, POSTGRES_* in .env.vercel-sync
+bash scripts/sync-vercel-env.sh
+```
+
+**One-time human step (unavoidable for security):** create a [Vercel API token](https://vercel.com/account/tokens) and copy Supabase secrets into `.env.vercel-sync` (gitignored). After that, agents and CI can sync env vars without the dashboard.
+
+Alternative: store the same file at `~/.config/crm/deploy.env` to share across projects on this VM.
+
 ## First user
 
 Supabase → **Authentication → Users** → Add user → sign in at `/login`

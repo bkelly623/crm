@@ -18,6 +18,7 @@
 # env
 .env
 .env*.local
+.env.vercel-sync
 
 # debug
 npm-debug.log*

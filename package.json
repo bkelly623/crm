@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "vercel:sync-env": "bash scripts/sync-vercel-env.sh"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",

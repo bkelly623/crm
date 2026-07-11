@@ -1,0 +1,25 @@
+---
+description: Sync Supabase secrets to Vercel without the dashboard
+globs:
+alwaysApply: true
+---
+
+# Vercel env automation
+
+The Vercel Cursor plugin is **read-only** for environment variables. To set or update them, use the project script:
+
+```bash
+bash scripts/sync-vercel-env.sh
+```
+
+## Prerequisites (one-time, human)
+
+1. Copy `.env.vercel-sync.example` → `.env.vercel-sync` (gitignored) **or** `~/.config/crm/deploy.env`
+2. Fill in:
+   - `VERCEL_TOKEN` from https://vercel.com/account/tokens
+   - `SUPABASE_SECRET_KEY` from Supabase Dashboard → API Keys
+   - `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` from Supabase → Database
+
+After that, agents can run the sync script in any session — no dashboard, no GitHub CLI, no Vercel CLI.
+
+Do **not** commit `.env.vercel-sync` or paste secrets into chat.
