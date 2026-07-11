@@ -4,9 +4,11 @@
  */
 
 export function getSupabaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ??
+    process.env.SUPABASE_URL;
   if (!url) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
+    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL from Supabase↔Vercel integration)");
   }
   return url;
 }
@@ -15,11 +17,12 @@ export function getSupabaseUrl(): string {
 export function getSupabasePublishableKey(): string {
   const key =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.SUPABASE_PUBLISHABLE_KEY ??
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!key) {
     throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Dashboard → Project Settings → API Keys → Publishable key, starts with sb_publishable_)",
+      "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or SUPABASE_PUBLISHABLE_KEY from Supabase↔Vercel integration)",
     );
   }
   return key;
