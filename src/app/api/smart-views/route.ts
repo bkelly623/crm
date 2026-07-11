@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 import { getCurrentProfile } from "@/lib/auth";
 import { SMART_VIEW_LIMIT } from "@/lib/leads/constants";
 import { prisma } from "@/lib/prisma";
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
     data: {
       userId: profile.id,
       name: body.name,
-      filters: body.filters,
+      filters: body.filters as Prisma.InputJsonValue,
     },
   });
 
