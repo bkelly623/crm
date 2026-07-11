@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ArrowLeft, Phone, Calendar } from "lucide-react";
+import { LeadDispositionSelect } from "@/components/leads/lead-disposition-select";
 
 export default async function LeadDetailPage({
   params,
@@ -29,7 +30,9 @@ export default async function LeadDetailPage({
       <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">{lead.businessName}</h1>
-          <p className="mt-1 capitalize text-muted">{lead.sdrStatus.replace(/_/g, " ")}</p>
+          <div className="mt-2">
+            <LeadDispositionSelect leadId={lead.id} currentStatus={lead.sdrStatus} />
+          </div>
         </div>
         <div className="flex gap-2">
           <button className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white">

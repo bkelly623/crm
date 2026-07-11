@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/auth";
-import { Plus, Upload, Headphones } from "lucide-react";
+import { Headphones } from "lucide-react";
+import { NewLeadButton } from "@/components/leads/new-lead-button";
+import { CsvUploadButton } from "@/components/leads/csv-upload-button";
+import { buildLeadWhere } from "@/lib/leads/filters";
 
 export default async function LeadsPage({
   searchParams,
@@ -16,18 +19,14 @@ export default async function LeadsPage({
   const q = params.q ?? "";
 
   const leads = await prisma.lead.findMany({
-    where: {
-      ...(segment !== "all" ? { segment } : {}),
-      ...(q
-        ? {
-            OR: [
-              { businessName: { contains: q, mode: "insensitive" } },
-              { contactName: { contains: q, mode: "insensitive" } },
-              { phone: { contains: q } },
-            ],
-          }
-        : {}),
-    },
+    where: buildLeadWhere(
+      {
+        segment: segment as "active" | "won" | "trashed" | "all",
+        search: q || undefined,
+        myLeadsOnly: false,
+      },
+      profile.id,
+    ),
     orderBy: { updatedAt: "desc" },
     take: 100,
   });
@@ -49,13 +48,8 @@ export default async function LeadsPage({
             <Headphones className="h-4 w-4" />
             Start Dialing
           </Link>
-          <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm">
-            <Plus className="h-4 w-4" />
-          </button>
-          <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm">
-            <Upload className="h-4 w-4" />
-            Upload CSV
-          </button>
+          <NewLeadButton />
+          <CsvUploadButton />
         </div>
       </div>
 
