@@ -2,9 +2,37 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  Calendar,
+  ClipboardList,
+  Clock,
+  Filter,
+  GraduationCap,
+  Headphones,
+  LayoutDashboard,
+  Phone,
+  Settings,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn, formatRole } from "@/lib/utils";
-import type { NavItem } from "@/lib/nav";
+import type { NavIconName, NavItem } from "@/lib/nav";
+
+const ICONS: Record<NavIconName, LucideIcon> = {
+  graduation: GraduationCap,
+  trophy: Trophy,
+  clipboard: ClipboardList,
+  dashboard: LayoutDashboard,
+  headphones: Headphones,
+  phone: Phone,
+  calendar: Calendar,
+  filter: Filter,
+  clock: Clock,
+  settings: Settings,
+  users: Users,
+};
 
 interface SidebarProps {
   nav: NavItem[];
@@ -50,7 +78,7 @@ export function Sidebar({
           const active =
             pathname === item.href ||
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
-          const Icon = item.icon;
+          const Icon = ICONS[item.icon];
           const showBadge = item.href === "/dashboard/tasks" && taskCount > 0;
 
           return (

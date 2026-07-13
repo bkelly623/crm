@@ -10,18 +10,22 @@ export async function getCurrentProfile() {
 
   if (!user) return null;
 
-  let profile = await prisma.profile.findUnique({ where: { id: user.id } });
+  const email = user.email ?? "";
+  const fullName =
+    (user.user_metadata?.full_name as string | undefined) ??
+    email.split("@")[0] ??
+    null;
+  const role = (user.user_metadata?.role as UserRole | undefined) ?? "sales_rep";
 
-  if (!profile) {
-    profile = await prisma.profile.create({
-      data: {
-        id: user.id,
-        email: user.email ?? "",
-        fullName: user.user_metadata?.full_name ?? user.email?.split("@")[0],
-        role: (user.user_metadata?.role as UserRole) ?? "sales_rep",
-      },
-    });
-  }
-
-  return profile;
+  // upsert avoids race when layout + page both call getCurrentProfile
+  return prisma.profile.upsert({
+    where: { id: user.id },
+    create: {
+      id: user.id,
+      email,
+      fullName,
+      role,
+    },
+    update: {},
+  });
 }
