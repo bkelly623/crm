@@ -17,7 +17,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { cn, formatRole } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { roleLabel } from "@/lib/roles";
 import type { NavIconName, NavItem } from "@/lib/nav";
 
 const ICONS: Record<NavIconName, LucideIcon> = {
@@ -60,15 +61,15 @@ export function Sidebar({
   }
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-sidebar">
-      <div className="border-b border-border px-5 py-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white">
-            CRM
+    <aside className="flex h-screen w-[17rem] shrink-0 flex-col bg-sidebar text-sidebar-fg">
+      <div className="border-b border-white/10 px-5 py-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary font-display text-sm font-bold text-primary-foreground">
+            OP
           </div>
           <div>
-            <p className="font-semibold leading-tight">CRM</p>
-            <p className="text-xs text-muted">{formatRole(userRole)}</p>
+            <p className="font-display text-base font-semibold tracking-tight">Outpost</p>
+            <p className="text-xs text-sidebar-muted">{roleLabel(userRole)}</p>
           </div>
         </div>
       </div>
@@ -86,16 +87,21 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
                 active
-                  ? "bg-primary/10 font-medium text-primary"
-                  : "text-foreground hover:bg-slate-100",
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-sidebar-fg/85 hover:bg-white/8 hover:text-white",
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon className="h-4 w-4 shrink-0 opacity-90" />
               <span className="flex-1">{item.label}</span>
               {showBadge && (
-                <span className="rounded-full bg-destructive px-1.5 py-0.5 text-xs font-medium text-white">
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 text-xs font-semibold",
+                    active ? "bg-white/20" : "bg-accent text-white",
+                  )}
+                >
                   {taskCount}
                 </span>
               )}
@@ -104,14 +110,14 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-border p-4">
+      <div className="border-t border-white/10 p-4">
         <p className="truncate text-sm font-medium">{userName}</p>
-        <p className="truncate text-xs text-muted">{userEmail}</p>
+        <p className="truncate text-xs text-sidebar-muted">{userEmail}</p>
         <button
           onClick={signOut}
-          className="mt-3 w-full rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-slate-50"
+          className="mt-3 w-full rounded-xl border border-white/15 px-3 py-1.5 text-xs text-sidebar-fg/90 transition hover:bg-white/10"
         >
-          Sign Out
+          Sign out
         </button>
       </div>
     </aside>

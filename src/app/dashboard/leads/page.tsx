@@ -37,31 +37,32 @@ export default async function LeadsPage({
     <div className="p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Lead Management</h1>
-          <p className="text-sm text-muted">{leads.length} leads shown</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Pipeline fuel</p>
+          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Leads</h1>
+          <p className="mt-1 text-sm text-muted">{leads.length} shown</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link
             href="/dashboard/dialer"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             <Headphones className="h-4 w-4" />
-            Start Dialing
+            Start dialing
           </Link>
           <NewLeadButton />
           <CsvUploadButton />
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center gap-2">
         {segments.map((s) => (
           <Link
             key={s}
             href={`/dashboard/leads?segment=${s}`}
-            className={`rounded-lg px-3 py-1.5 text-sm capitalize ${
+            className={`rounded-xl px-3 py-1.5 text-sm capitalize transition ${
               segment === s
-                ? "bg-slate-900 text-white"
-                : "border border-border bg-white hover:bg-slate-50"
+                ? "bg-sidebar text-sidebar-fg"
+                : "border border-border bg-surface hover:border-primary/30"
             }`}
           >
             {s}
@@ -73,19 +74,22 @@ export default async function LeadsPage({
         <input
           name="q"
           defaultValue={q}
-          placeholder="Search leads..."
-          className="w-full max-w-md rounded-lg border border-border px-3 py-2 text-sm"
+          placeholder="Search business, contact, phone…"
+          className="w-full max-w-md rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
         />
       </form>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-border bg-white">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
         {leads.length === 0 ? (
-          <p className="p-8 text-center text-muted">
-            No leads yet. Import a CSV or add leads via API / GHL webhook.
-          </p>
+          <div className="p-10 text-center">
+            <p className="font-display text-lg font-medium">No leads in this view</p>
+            <p className="mt-2 text-sm text-muted">
+              Import a CSV or add a lead to start filling the floor.
+            </p>
+          </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="border-b border-border bg-slate-50 text-left">
+            <thead className="border-b border-border bg-canvas text-left text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Business</th>
                 <th className="px-4 py-3 font-medium">Contact</th>
@@ -96,7 +100,7 @@ export default async function LeadsPage({
             </thead>
             <tbody>
               {leads.map((lead) => (
-                <tr key={lead.id} className="border-b border-border last:border-0 hover:bg-slate-50">
+                <tr key={lead.id} className="border-b border-border last:border-0 hover:bg-canvas/60">
                   <td className="px-4 py-3">
                     <Link href={`/dashboard/leads/${lead.id}`} className="font-medium text-primary hover:underline">
                       {lead.businessName}

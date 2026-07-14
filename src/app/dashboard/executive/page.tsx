@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth";
+import { ComingSoon } from "@/components/ui/coming-soon";
 
 export default async function ExecutivePage() {
   const profile = await getCurrentProfile();
@@ -7,17 +7,18 @@ export default async function ExecutivePage() {
     return (
       <div className="flex min-h-[50vh] items-center justify-center p-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Access Denied</h1>
-          <p className="mt-2 text-muted">You do not have permission to view this page.</p>
+          <h1 className="font-display text-2xl font-semibold">Access denied</h1>
+          <p className="mt-2 text-muted">Managers and admins only.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Executive Dashboard</h1>
-      <p className="text-muted">Org-wide KPIs — coming in Phase 4.</p>
-    </div>
+    <ComingSoon
+      title="Pulse"
+      description="Org-wide KPIs, conversion, and capacity — executive view."
+      phase="Phase 4"
+    />
   );
 }

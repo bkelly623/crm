@@ -18,15 +18,27 @@ export default async function TasksPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold">My Tasks</h1>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Work queue</p>
+      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Follow-ups</h1>
       {overdue.length > 0 && (
-        <span className="mt-2 inline-block rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+        <span className="mt-3 inline-block rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
           {overdue.length} overdue
         </span>
       )}
 
-      <TaskSection title="Overdue" tasks={overdue} variant="overdue" />
-      <TaskSection title="Upcoming" tasks={upcoming} variant="default" />
+      {tasks.length === 0 ? (
+        <div className="mt-8 rounded-2xl border border-dashed border-border bg-surface/70 p-10 text-center">
+          <p className="font-display text-lg font-medium">Inbox clear</p>
+          <p className="mt-2 text-sm text-muted">
+            Create tasks from a lead detail page when you need a callback.
+          </p>
+        </div>
+      ) : (
+        <>
+          <TaskSection title="Overdue" tasks={overdue} variant="overdue" />
+          <TaskSection title="Upcoming" tasks={upcoming} variant="default" />
+        </>
+      )}
     </div>
   );
 }
