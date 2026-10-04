@@ -5,7 +5,6 @@ export default function SalesTrainingPage() {
     <ComingSoon
       title="Playbook"
       description="Scripts, objection handling, and onboarding for new setters."
-      phase="Phase 6"
     />
   );
 }

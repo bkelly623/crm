@@ -1,3 +1,4 @@
+import { salesLeadScope } from "@/lib/leads/access";
 import { NextResponse } from "next/server";
 import { getCurrentProfile } from "@/lib/auth";
 import { CSV_COLUMNS } from "@/lib/leads/constants";
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
   if (!profile) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (!salesLeadScope(profile)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const formData = await request.formData();
   const file = formData.get("file");

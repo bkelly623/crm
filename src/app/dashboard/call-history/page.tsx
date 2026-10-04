@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { salesLeadScope } from "@/lib/leads/access";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/auth";
 import Link from "next/link";
@@ -5,12 +7,14 @@ import Link from "next/link";
 export default async function CallHistoryPage() {
   const profile = await getCurrentProfile();
   if (!profile) return null;
+  const scope = salesLeadScope(profile);
+  if (!scope) notFound();
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
   const calls = await prisma.call.findMany({
-    where: { userId: profile.id, startedAt: { gte: startOfDay } },
+    where: { lead: scope, userId: profile.id, startedAt: { gte: startOfDay } },
     include: { lead: true },
     orderBy: { startedAt: "desc" },
     take: 200,
@@ -18,13 +22,13 @@ export default async function CallHistoryPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold">Call History</h1>
-      <p className="text-sm text-muted">{calls.length} calls today</p>
+      <h1 className="text-2xl font-bold">Call log</h1>
+      <p className="text-sm text-muted">{calls.length} calls shown today (server time); latest 200 accessible calls maximum.</p>
 
       <div className="mt-6 space-y-2">
         {calls.length === 0 ? (
           <p className="rounded-xl border border-border bg-white p-8 text-center text-muted">
-            No calls today. Start dialing from the Dialer tab.
+            No accessible calls today. Calling is disabled; use the Dialer for lead review.
           </p>
         ) : (
           calls.map((call) => (

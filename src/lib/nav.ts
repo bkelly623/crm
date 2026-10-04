@@ -18,34 +18,27 @@ export interface NavItem {
   roles?: string[];
 }
 
-/** Outpost nav labels — intentionally not mirrored 1:1 from the source product */
+const SALES_ROLES = ["admin", "sales_manager", "sales_rep", "closer", "hybrid"];
+
+// Visibility is not authorization: pages and APIs independently enforce scope.
 export const SALES_REP_NAV: NavItem[] = [
-  { label: "Playbook", href: "/dashboard/sales-training", icon: "graduation" },
-  { label: "Standings", href: "/dashboard/leaderboard", icon: "trophy" },
-  { label: "Follow-ups", href: "/dashboard/tasks", icon: "clipboard" },
   { label: "Home", href: "/dashboard", icon: "dashboard" },
-  { label: "Floor", href: "/dashboard/dialer", icon: "headphones" },
-  { label: "Leads", href: "/dashboard/leads", icon: "phone" },
-  { label: "Bookings", href: "/dashboard/appointments", icon: "calendar" },
-  { label: "Sequences", href: "/dashboard/pipeline", icon: "filter" },
-  { label: "Call log", href: "/dashboard/call-history", icon: "clock" },
+  { label: "Playbook", href: "/dashboard/sales-training", icon: "graduation", roles: SALES_ROLES },
+  { label: "Leaderboard", href: "/dashboard/leaderboard", icon: "trophy", roles: SALES_ROLES },
+  { label: "Follow-ups", href: "/dashboard/tasks", icon: "clipboard", roles: SALES_ROLES },
+  { label: "Dialer", href: "/dashboard/dialer", icon: "headphones", roles: SALES_ROLES },
+  { label: "Leads", href: "/dashboard/leads", icon: "phone", roles: SALES_ROLES },
+  { label: "Appointments", href: "/dashboard/appointments", icon: "calendar", roles: SALES_ROLES },
+  { label: "Sequences (planned)", href: "/dashboard/pipeline", icon: "filter", roles: SALES_ROLES },
+  { label: "Call log", href: "/dashboard/call-history", icon: "clock", roles: SALES_ROLES },
   { label: "Settings", href: "/dashboard/settings", icon: "settings" },
 ];
 
 export const ADMIN_EXTRA_NAV: NavItem[] = [
-  { label: "Pulse", href: "/dashboard/executive", icon: "dashboard", roles: ["admin", "sales_manager"] },
+  { label: "Reports", href: "/dashboard/executive", icon: "dashboard", roles: ["admin", "sales_manager"] },
   { label: "Team", href: "/dashboard/users", icon: "users", roles: ["admin", "sales_manager"] },
 ];
 
 export function getNavForRole(role: string): NavItem[] {
-  if (role === "admin" || role === "sales_manager") {
-    return [
-      ADMIN_EXTRA_NAV[0],
-      ...SALES_REP_NAV.slice(0, 3),
-      { label: "Team", href: "/dashboard/users", icon: "users" },
-      { label: "Leads", href: "/dashboard/leads", icon: "phone" },
-      ...SALES_REP_NAV.slice(4),
-    ];
-  }
-  return SALES_REP_NAV;
+  return [...SALES_REP_NAV, ...ADMIN_EXTRA_NAV].filter(item => !item.roles || item.roles.includes(role));
 }

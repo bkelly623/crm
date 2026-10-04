@@ -1,3 +1,4 @@
+import { salesLeadScope } from "@/lib/leads/access";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { getCurrentProfile } from "@/lib/auth";
@@ -12,18 +13,20 @@ export default async function DashboardLayout({
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
 
-  const taskCount = await prisma.task.count({
+  const scope = salesLeadScope(profile);
+  const taskCount = scope ? await prisma.task.count({
     where: {
+      lead: scope,
       userId: profile.id,
       status: "open",
       dueAt: { lt: new Date() },
     },
-  });
+  }) : 0;
 
   const nav = getNavForRole(profile.role);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-dvh flex-col lg:flex-row">
       <Sidebar
         nav={nav}
         userName={profile.fullName ?? profile.email}
@@ -31,7 +34,7 @@ export default async function DashboardLayout({
         userRole={profile.role}
         taskCount={taskCount}
       />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="min-w-0 flex-1">{children}</main>
     </div>
   );
 }

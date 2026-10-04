@@ -3,9 +3,8 @@ import { ComingSoon } from "@/components/ui/coming-soon";
 export default function LeaderboardPage() {
   return (
     <ComingSoon
-      title="Standings"
-      description="Team dial / book / close rankings for the floor."
-      phase="Phase 2"
+      title="Leaderboard"
+      description="Planned team outcome rankings. No rankings or performance metrics are calculated here."
     />
   );
 }

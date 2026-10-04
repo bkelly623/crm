@@ -58,7 +58,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = inviteSchema.parse(await request.json());
+  const parsed = inviteSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid invitation" }, { status: 400 });
+  }
+  const body = parsed.data;
+  // Conservative grant policy: admins may grant any schema-valid role;
+  // sales managers may invite sales_rep only. All other actors are denied above.
+  // Existing-profile role changes remain admin-only (PATCH).
+  if (profile.role !== "admin" && body.role !== "sales_rep") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const admin = createAdminClient();
 
   const { data, error } = await admin.auth.admin.createUser({
@@ -67,7 +77,6 @@ export async function POST(request: Request) {
     email_confirm: true,
     user_metadata: {
       full_name: body.fullName ?? body.email.split("@")[0],
-      role: body.role,
     },
   });
 
@@ -102,7 +111,11 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = patchSchema.parse(await request.json());
+  const parsed = patchSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid role update" }, { status: 400 });
+  }
+  const body = parsed.data;
 
   if (body.userId === profile.id && body.role !== "admin") {
     return NextResponse.json(

@@ -1,0 +1,42 @@
+{
+  "source_method": "Public business websites; not a Google Maps scrape",
+  "not_imported": true,
+  "leads": [
+    {
+      "business_name": "Schuler Service",
+      "phone": "+16104347103",
+      "website": "https://www.schulerservice.com/",
+      "location": "Allentown PA",
+      "industry": "Plumbing",
+      "source_url": "https://www.schulerservice.com/",
+      "market": "PA Allentown sample",
+      "type": "UI test sample - not cleared for calling",
+      "retrieved_at": "2026-10-03T20:07:16.237199+00:00",
+      "calling_eligibility": "NOT_REVIEWED"
+    },
+    {
+      "business_name": "Fred J. Moyer Plumbing Inc.",
+      "phone": "+16104326629",
+      "website": "https://www.fredjmoyer.com/",
+      "location": "Allentown PA",
+      "industry": "Plumbing",
+      "source_url": "https://www.fredjmoyer.com/",
+      "market": "PA Allentown sample",
+      "type": "UI test sample - not cleared for calling",
+      "retrieved_at": "2026-10-03T20:07:16.237245+00:00",
+      "calling_eligibility": "NOT_REVIEWED"
+    },
+    {
+      "business_name": "Andreas Plumbing Heating & Air Conditioning",
+      "phone": "+16103775261",
+      "website": "https://andreasplumbing.com/",
+      "location": "Serves Allentown PA",
+      "industry": "Plumbing",
+      "source_url": "https://andreasplumbing.com/service-area/plumbing/allentown/",
+      "market": "PA Allentown sample",
+      "type": "UI test sample - not cleared for calling",
+      "retrieved_at": "2026-10-03T20:07:16.237251+00:00",
+      "calling_eligibility": "NOT_REVIEWED"
+    }
+  ]
+}

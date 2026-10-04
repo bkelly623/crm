@@ -1,175 +1,95 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
+import { CallerIdSelector } from "@/components/dialer/caller-id-selector";
 import Link from "next/link";
-import { Headphones, Phone, Pause, Square } from "lucide-react";
+import { useBrowserDialer } from "./use-browser-dialer";
+import { BrowserCallControls } from "./browser-call-controls";
 import { SDR_STATUSES } from "@/lib/leads/constants";
-
-interface SmartView {
-  id: string;
-  name: string;
-}
-
-interface Lead {
-  id: string;
-  businessName: string;
-  contactName: string | null;
-  phone: string | null;
-  sdrStatus: string;
-}
-
+import { REVIEW_SESSION_LIMIT } from "@/lib/leads/review";
+import { OrganizerSelect, filterControl } from "@/components/leads/organizer-select";
+interface SmartView { id: string; name: string }
+interface Lead { id: string; businessName: string; contactName: string | null; phone: string | null; sdrStatus: string }
 export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
+  const { snapshot: voice, controller } = useBrowserDialer();
+  const [callerIdSid, setCallerIdSid] = useState("");
+  const held = voice.locked || voice.preparing;
   const [selectedView, setSelectedView] = useState(smartViews[0]?.id ?? "");
+  const [listId, setListId] = useState("");
+  const [tagId, setTagId] = useState("");
   const [lead, setLead] = useState<Lead | null>(null);
   const [disposition, setDisposition] = useState("no_contact");
-  const [status, setStatus] = useState<string>("idle");
-  const [twilioReady, setTwilioReady] = useState<boolean | null>(null);
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
   const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/twilio/token")
-      .then((r) => setTwilioReady(r.ok))
-      .catch(() => setTwilioReady(false));
-  }, []);
-
-  async function fetchNextLead() {
-    setStatus("loading");
-    const qs = selectedView ? `?smartViewId=${selectedView}` : "";
-    const res = await fetch(`/api/dialer/next-lead${qs}`);
+  const [busy, setBusy] = useState(false);
+  const lock = useRef(false);
+  const reviewed = useRef<string[]>([]);
+  const selectionVersion = useRef(0);
+  function clearReview() { selectionVersion.current += 1; setLead(null); setStatus("idle"); setError(""); }
+  async function next(version: number) {
+    if (reviewed.current.length >= REVIEW_SESSION_LIMIT) { setLead(null); setStatus("limit"); return; }
+    const qs = new URLSearchParams();
+    if (listId) qs.set("listId", listId);
+    if (tagId) qs.set("tagId", tagId);
+    if (selectedView) qs.set("smartViewId", selectedView);
+    reviewed.current.forEach(id => qs.append("exclude", id));
+    const res = await fetch(`/api/dialer/next-lead${qs.size ? `?${qs}` : ""}`);
     const data = await res.json();
-    setLead(data.lead ?? null);
-    setDisposition(data.lead?.sdrStatus ?? "no_contact");
-    setStatus(data.lead ? "ready" : "empty");
+    if (version !== selectionVersion.current) return;
+    if (!res.ok) {
+      if ([400, 404].includes(res.status)) { setListId(""); setTagId(""); setSelectedView(""); setLead(null); }
+      throw new Error("Could not load queue. Check your selection and retry.");
+    }
+    if (data.lead && reviewed.current.includes(data.lead.id)) throw new Error("Queue returned a reviewed lead. Stop and retry later.");
+    setLead(data.lead ?? null); setDisposition(data.lead?.sdrStatus ?? "no_contact"); setStatus(data.lead ? "ready" : "empty");
   }
-
-  async function saveDisposition() {
-    if (!lead) return;
-    await fetch(`/api/leads/${lead.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sdrStatus: disposition }),
-    });
-    await fetchNextLead();
+  async function advance(save: boolean) {
+    if (lock.current || paused || controller.current?.snapshot.locked || controller.current?.snapshot.preparing) return; lock.current = true; setBusy(true); setError("");
+    const version = selectionVersion.current;
+    try {
+      if (lead) {
+        if (save) {
+          const res = await fetch(`/api/leads/${encodeURIComponent(lead.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sdrStatus: disposition }) });
+          if (!res.ok) throw new Error("Could not save disposition. Your selection is retained; retry.");
+        }
+        if (!reviewed.current.includes(lead.id)) reviewed.current.push(lead.id);
+        setLead(null);
+      }
+      if (version !== selectionVersion.current) return;
+      setStatus("loading"); await next(version);
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not load queue. Please retry."); setStatus("error"); }
+    finally { lock.current = false; setBusy(false); }
   }
-
-  async function startDialing() {
-    if (!lead?.phone) return;
-    setStatus("dialing");
-    // Twilio Voice SDK wiring lands here when credentials are set
-    window.open(`tel:${lead.phone}`, "_self");
-  }
-
-  return (
-    <div className="mt-8 space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <select
-          value={selectedView}
-          onChange={(e) => setSelectedView(e.target.value)}
-          className="rounded-lg border border-border px-3 py-2 text-sm"
-        >
-          <option value="">All active leads</option>
-          {smartViews.map((sv) => (
-            <option key={sv.id} value={sv.id}>
-              {sv.name}
-            </option>
-          ))}
-        </select>
-
-        <button
-          onClick={fetchNextLead}
-          disabled={paused}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          <Headphones className="h-4 w-4" />
-          {lead ? "Next Lead" : "Start Dialing"}
-        </button>
-
-        {lead && (
-          <>
-            <button
-              onClick={() => setPaused(!paused)}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-sm"
-            >
-              <Pause className="h-4 w-4" />
-              {paused ? "Resume" : "Pause"}
-            </button>
-            <button
-              onClick={() => {
-                setLead(null);
-                setStatus("idle");
-              }}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-sm text-destructive"
-            >
-              <Square className="h-4 w-4" />
-              Stop
-            </button>
-          </>
-        )}
-      </div>
-
-      {twilioReady === false && (
-        <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Twilio not configured yet. Add TWILIO_* env vars in Vercel. Dialer uses click-to-call until then.
-        </p>
-      )}
-
-      {!lead && status !== "loading" && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-white p-16 text-center">
-          <Headphones className="h-12 w-12 text-primary/40" />
-          <h2 className="mt-4 text-lg font-semibold">Ready to Dial</h2>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Select a SmartView and click Start Dialing. Import leads first if your pool is empty.
-          </p>
-        </div>
-      )}
-
-      {lead && (
-        <div className="rounded-xl border border-border bg-white p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold">{lead.businessName}</h2>
-              <p className="text-muted">{lead.contactName ?? "—"} · {lead.phone ?? "No phone"}</p>
-            </div>
-            <button
-              onClick={startDialing}
-              disabled={!lead.phone || paused}
-              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-            >
-              <Phone className="h-4 w-4" />
-              Call
-            </button>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-end gap-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium">Disposition</label>
-              <select
-                value={disposition}
-                onChange={(e) => setDisposition(e.target.value)}
-                className="rounded-lg border border-border px-3 py-2 text-sm"
-              >
-                {SDR_STATUSES.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button
-              onClick={saveDisposition}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
-            >
-              Save & Next
-            </button>
-            <Link
-              href={`/dashboard/leads/${lead.id}`}
-              className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-slate-50"
-            >
-              Open Lead
-            </Link>
-          </div>
-        </div>
-      )}
+  return <div className="mt-8 min-w-0 space-y-6">
+    <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
+      <OrganizerSelect kind="lists" value={listId} disabled={busy || held} onChange={value => { if (!controller.current?.snapshot.locked) { setListId(value); clearReview(); } }} />
+      <OrganizerSelect kind="tags" value={tagId} disabled={busy || held} onChange={value => { if (!controller.current?.snapshot.locked) { setTagId(value); clearReview(); } }} />
+      <label className="block text-sm">SmartView<select className={filterControl} value={selectedView} disabled={busy || held} onChange={e => { setSelectedView(e.target.value); clearReview(); }}>
+        <option value="">No saved filter</option>{smartViews.map(view => <option key={view.id} value={view.id}>{view.name}</option>)}
+      </select></label>
     </div>
-  );
+    <CallerIdSelector disabled={held} onVerifiedChange={setCallerIdSid} />
+    <BrowserCallControls voice={voice} controller={controller} disabled={busy || paused} />
+    <div className="flex flex-wrap gap-3">
+      <button className={filterControl + " sm:w-auto"} disabled={held || paused || busy || status === "limit"} onClick={() => advance(false)}>{lead ? "Next Lead" : "Load Lead"}</button>
+      <button className={filterControl + " sm:w-auto"} disabled={busy || held} onClick={() => setPaused(!paused)}>{paused ? "Resume" : "Pause"}</button>
+      <button className={filterControl + " sm:w-auto"} disabled={busy || held} onClick={() => { clearReview(); setPaused(false); }}>Stop</button>
+    </div>
+    <p className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">Review mode works without browser audio. Calling unavailable until microphone preflight and server authorization succeed. Only approved pilot recipients can be called. Recording and phone-app fallback are disabled.</p>
+    {error && <p role="alert">{error}</p>}
+    {busy && <p role="status">Loading…</p>}
+    {status === "empty" && <p role="status">No eligible unreviewed leads in this selection.</p>}
+    {status === "limit" && <p role="status">Review session limit reached. Reload the page to explicitly start a new session.</p>}
+    {!lead && status === "idle" && <p>Ready to Review. Select a named list, tag or SmartView, then Load Lead.</p>}
+    {lead && <section className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6">
+      <h2 className="break-words text-xl font-bold">{lead.businessName}</h2>
+      <p className="break-words">{lead.contactName ?? "—"} · {lead.phone ?? "No phone"}</p>
+      <button className={filterControl + " mt-3 sm:w-auto"} disabled={held || busy || paused || !voice.ready || !callerIdSid || !lead.phone} onClick={() => { if (!lock.current) void controller.current?.start(lead.id, callerIdSid); }}>Call</button>
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <label>Disposition<select className={filterControl} value={disposition} disabled={busy || held} onChange={e => setDisposition(e.target.value)}>{SDR_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></label>
+        <button className={filterControl} onClick={() => advance(true)} disabled={held || paused || busy}>Save &amp; Next</button>
+        {held ? <span className={filterControl + " opacity-50"} aria-disabled="true">Open Lead — held during call</span> : <Link className={filterControl} href={`/dashboard/leads/${lead.id}`}>Open Lead</Link>}
+      </div>
+    </section>}
+  </div>;
 }

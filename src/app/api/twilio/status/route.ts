@@ -1,48 +1,33 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { authenticateTwilioForm } from "@/lib/twilio/webhook";
+import { applyCallEvent, LifecycleRejected } from "@/lib/twilio/call-lifecycle";
 
 export async function POST(request: Request) {
-  const formData = await request.formData();
-  const callSid = formData.get("CallSid")?.toString();
-  const callStatus = formData.get("CallStatus")?.toString();
-  const duration = formData.get("CallDuration")?.toString();
-  const leadId = formData.get("leadId")?.toString();
-  const userId = formData.get("userId")?.toString();
-
-  if (callSid && leadId && userId) {
-    const statusMap: Record<string, "completed" | "no_answer" | "busy" | "failed" | "canceled" | "in_progress"> = {
-      completed: "completed",
-      "no-answer": "no_answer",
-      busy: "busy",
-      failed: "failed",
-      canceled: "canceled",
-      in_progress: "in_progress",
-    };
-
-    await prisma.call.upsert({
-      where: { twilioCallSid: callSid },
-      create: {
-        twilioCallSid: callSid,
-        leadId,
-        userId,
-        status: statusMap[callStatus ?? ""] ?? "completed",
-        durationSeconds: duration ? parseInt(duration, 10) : null,
-        endedAt: callStatus === "completed" ? new Date() : null,
-      },
-      update: {
-        status: statusMap[callStatus ?? ""] ?? "completed",
-        durationSeconds: duration ? parseInt(duration, 10) : undefined,
-        endedAt: callStatus === "completed" ? new Date() : undefined,
-      },
+  const authenticated = await authenticateTwilioForm(request);
+  if (!authenticated.ok) return NextResponse.json({ error: "Webhook rejected" }, { status: authenticated.status });
+  const field = (name: string) => authenticated.form.get(name)?.toString() ?? "";
+  const query = new URL(request.url).searchParams;
+  const kind = query.get("event");
+  const intentId = query.get("intentId") ?? undefined;
+  const action = kind === "action";
+  const reply = (status: number) => action
+    ? new NextResponse('<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>', { status, headers: { "Content-Type": "text/xml" } })
+    : NextResponse.json(status === 200 ? { ok: true } : { error: "Webhook rejected" }, { status });
+  if (query.getAll("event").length > 1 || query.getAll("intentId").length > 1 ||
+      (kind !== null && kind !== "child" && kind !== "action") ||
+      (kind && (!intentId || !/^[0-9a-f-]{36}$/.test(intentId)))) return reply(422);
+  try {
+    await applyCallEvent({
+      accountSid: field("AccountSid"), intentId,
+      callSid: action ? field("DialCallSid") : field("CallSid"),
+      parentCallSid: action ? field("CallSid") : kind === "child" ? field("ParentCallSid") : undefined,
+      status: action ? field("DialCallStatus") : field("CallStatus"),
+      duration: authenticated.form.has(action ? "DialCallDuration" : "CallDuration") ? field(action ? "DialCallDuration" : "CallDuration") : undefined,
     });
-
-    if (callStatus === "completed") {
-      await prisma.lead.update({
-        where: { id: leadId },
-        data: { dialedCount: { increment: 1 } },
-      });
-    }
+    return reply(200);
+  } catch (error) {
+    // Continue processing verified terminal callbacks even when calling is off.
+    // Persistence failure is retryable; deterministic bad authority isn't.
+    return reply(error instanceof LifecycleRejected ? 422 : 503);
   }
-
-  return NextResponse.json({ ok: true });
 }

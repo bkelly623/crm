@@ -3,9 +3,8 @@ import { ComingSoon } from "@/components/ui/coming-soon";
 export default function PipelinePage() {
   return (
     <ComingSoon
-      title="Pipeline"
-      description="Today's required actions and leads sitting in follow-up sequences."
-      phase="Phase 2"
+      title="Sequences"
+      description="Planned manual follow-up plans. No sequences run and no messages are sent. Use Follow-ups for existing tasks."
     />
   );
 }

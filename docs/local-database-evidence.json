@@ -1,0 +1,3329 @@
+{
+  "at_utc": "2026-10-03T23:22:48.625312+00:00",
+  "image_digest": "postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+  "server_version": "17.11",
+  "authenticated_host_loopback_tcp": "crm_local_staging|postgres|5432",
+  "baseline": {
+    "columns": [
+      {
+        "table_name": "calls",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "twilio_call_sid",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "status",
+        "udt_name": "CallStatus",
+        "is_nullable": "NO",
+        "column_default": "'initiated'::\"CallStatus\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "disposition",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "duration_seconds",
+        "udt_name": "int4",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "recording_url",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "started_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "ended_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "business_name",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "contact_name",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "phone",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "email",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "website",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "revenue",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "location",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "industry",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "sic_code",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "market",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "type",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "source",
+        "udt_name": "LeadSource",
+        "is_nullable": "NO",
+        "column_default": "'native'::\"LeadSource\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "segment",
+        "udt_name": "LeadSegment",
+        "is_nullable": "NO",
+        "column_default": "'active'::\"LeadSegment\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "sdr_status",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'no_contact'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "external_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "external_source",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "notes",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "dialed_count",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": "0",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "setter_id",
+        "udt_name": "uuid",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "closer_id",
+        "udt_name": "uuid",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "updated_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'default'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_enabled",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_location_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_api_key",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "use_ghl_calendar",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "use_ghl_workflows",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "email",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "full_name",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "role",
+        "udt_name": "UserRole",
+        "is_nullable": "NO",
+        "column_default": "'sales_rep'::\"UserRole\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "phone",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "timezone",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'America/New_York'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "google_calendar_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "dialer_hours_extended",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "twilio_phone_number",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "ghl_contact_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "updated_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "name",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "filters",
+        "udt_name": "jsonb",
+        "is_nullable": "NO",
+        "column_default": "'{}'::jsonb",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "note",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "due_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "status",
+        "udt_name": "TaskStatus",
+        "is_nullable": "NO",
+        "column_default": "'open'::\"TaskStatus\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      }
+    ],
+    "constraints": [
+      {
+        "relname": "calls",
+        "conname": "calls_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_twilio_call_sid_key",
+        "pg_get_constraintdef": "UNIQUE (twilio_call_sid)"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_closer_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (closer_id) REFERENCES profiles(id) ON DELETE SET NULL"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_setter_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (setter_id) REFERENCES profiles(id) ON DELETE SET NULL"
+      },
+      {
+        "relname": "org_settings",
+        "conname": "org_settings_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "profiles",
+        "conname": "profiles_email_key",
+        "pg_get_constraintdef": "UNIQUE (email)"
+      },
+      {
+        "relname": "profiles",
+        "conname": "profiles_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "smart_views",
+        "conname": "smart_views_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "smart_views",
+        "conname": "smart_views_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "tablename": "calls",
+        "indexname": "calls_lead_id_idx",
+        "indexdef": "CREATE INDEX calls_lead_id_idx ON public.calls USING btree (lead_id)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_pkey",
+        "indexdef": "CREATE UNIQUE INDEX calls_pkey ON public.calls USING btree (id)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_twilio_call_sid_key",
+        "indexdef": "CREATE UNIQUE INDEX calls_twilio_call_sid_key ON public.calls USING btree (twilio_call_sid)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_user_started_idx",
+        "indexdef": "CREATE INDEX calls_user_started_idx ON public.calls USING btree (user_id, started_at)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_external_idx",
+        "indexdef": "CREATE INDEX leads_external_idx ON public.leads USING btree (external_id, external_source)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_phone_idx",
+        "indexdef": "CREATE INDEX leads_phone_idx ON public.leads USING btree (phone)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_pkey",
+        "indexdef": "CREATE UNIQUE INDEX leads_pkey ON public.leads USING btree (id)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_segment_idx",
+        "indexdef": "CREATE INDEX leads_segment_idx ON public.leads USING btree (segment)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_setter_id_idx",
+        "indexdef": "CREATE INDEX leads_setter_id_idx ON public.leads USING btree (setter_id)"
+      },
+      {
+        "tablename": "org_settings",
+        "indexname": "org_settings_pkey",
+        "indexdef": "CREATE UNIQUE INDEX org_settings_pkey ON public.org_settings USING btree (id)"
+      },
+      {
+        "tablename": "profiles",
+        "indexname": "profiles_email_key",
+        "indexdef": "CREATE UNIQUE INDEX profiles_email_key ON public.profiles USING btree (email)"
+      },
+      {
+        "tablename": "profiles",
+        "indexname": "profiles_pkey",
+        "indexdef": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+      },
+      {
+        "tablename": "smart_views",
+        "indexname": "smart_views_pkey",
+        "indexdef": "CREATE UNIQUE INDEX smart_views_pkey ON public.smart_views USING btree (id)"
+      },
+      {
+        "tablename": "smart_views",
+        "indexname": "smart_views_user_id_idx",
+        "indexdef": "CREATE INDEX smart_views_user_id_idx ON public.smart_views USING btree (user_id)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_pkey",
+        "indexdef": "CREATE UNIQUE INDEX tasks_pkey ON public.tasks USING btree (id)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_status_idx",
+        "indexdef": "CREATE INDEX tasks_status_idx ON public.tasks USING btree (status)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_user_due_idx",
+        "indexdef": "CREATE INDEX tasks_user_due_idx ON public.tasks USING btree (user_id, due_at)"
+      }
+    ],
+    "enums": [
+      {
+        "typname": "CallStatus",
+        "enumlabel": "initiated",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "ringing",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "in_progress",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "completed",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "no_answer",
+        "enumsortorder": 5
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "busy",
+        "enumsortorder": 6
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "failed",
+        "enumsortorder": 7
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "canceled",
+        "enumsortorder": 8
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "active",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "won",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "trashed",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "native",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "csv",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "ghl",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "manual",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "open",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "completed",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "canceled",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "admin",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "sales_manager",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "hiring_manager",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "sales_rep",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "closer",
+        "enumsortorder": 5
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "project_manager",
+        "enumsortorder": 6
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "hybrid",
+        "enumsortorder": 7
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "client",
+        "enumsortorder": 8
+      }
+    ],
+    "rls": [
+      {
+        "relname": "calls",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "leads",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "org_settings",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "profiles",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "smart_views",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "tasks",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      }
+    ],
+    "policies": [],
+    "counts": {
+      "calls": 0,
+      "leads": 0,
+      "org_settings": 0,
+      "profiles": 0,
+      "smart_views": 0,
+      "tasks": 0
+    },
+    "data_hashes": {
+      "calls": "d41d8cd98f00b204e9800998ecf8427e",
+      "leads": "d41d8cd98f00b204e9800998ecf8427e",
+      "org_settings": "d41d8cd98f00b204e9800998ecf8427e",
+      "profiles": "d41d8cd98f00b204e9800998ecf8427e",
+      "smart_views": "d41d8cd98f00b204e9800998ecf8427e",
+      "tasks": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  },
+  "post_migration": {
+    "columns": [
+      {
+        "table_name": "calls",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "twilio_call_sid",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "status",
+        "udt_name": "CallStatus",
+        "is_nullable": "NO",
+        "column_default": "'initiated'::\"CallStatus\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "disposition",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "duration_seconds",
+        "udt_name": "int4",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "recording_url",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "started_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "ended_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_list_memberships",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_list_memberships",
+        "column_name": "list_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_list_memberships",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "owner_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "name",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 80
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "name_key",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 80
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_tags",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_tags",
+        "column_name": "tag_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_tags",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "business_name",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "contact_name",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "phone",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "email",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "website",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "revenue",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "location",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "industry",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "sic_code",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "market",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "type",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "source",
+        "udt_name": "LeadSource",
+        "is_nullable": "NO",
+        "column_default": "'native'::\"LeadSource\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "segment",
+        "udt_name": "LeadSegment",
+        "is_nullable": "NO",
+        "column_default": "'active'::\"LeadSegment\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "sdr_status",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'no_contact'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "external_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "external_source",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "notes",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "dialed_count",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": "0",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "setter_id",
+        "udt_name": "uuid",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "closer_id",
+        "udt_name": "uuid",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "updated_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'default'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_enabled",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_location_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_api_key",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "use_ghl_calendar",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "use_ghl_workflows",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "email",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "full_name",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "role",
+        "udt_name": "UserRole",
+        "is_nullable": "NO",
+        "column_default": "'sales_rep'::\"UserRole\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "phone",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "timezone",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'America/New_York'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "google_calendar_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "dialer_hours_extended",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "twilio_phone_number",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "ghl_contact_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "updated_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "name",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "filters",
+        "udt_name": "jsonb",
+        "is_nullable": "NO",
+        "column_default": "'{}'::jsonb",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tags",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tags",
+        "column_name": "name",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 60
+      },
+      {
+        "table_name": "tags",
+        "column_name": "name_key",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 60
+      },
+      {
+        "table_name": "tags",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "note",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "due_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "status",
+        "udt_name": "TaskStatus",
+        "is_nullable": "NO",
+        "column_default": "'open'::\"TaskStatus\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      }
+    ],
+    "constraints": [
+      {
+        "relname": "calls",
+        "conname": "calls_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_twilio_call_sid_key",
+        "pg_get_constraintdef": "UNIQUE (twilio_call_sid)"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "conname": "lead_list_memberships_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "conname": "lead_list_memberships_list_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (list_id) REFERENCES lead_lists(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "conname": "lead_list_memberships_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (lead_id, list_id)"
+      },
+      {
+        "relname": "lead_lists",
+        "conname": "lead_lists_owner_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (owner_id) REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_lists",
+        "conname": "lead_lists_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "lead_tags",
+        "conname": "lead_tags_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_tags",
+        "conname": "lead_tags_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (lead_id, tag_id)"
+      },
+      {
+        "relname": "lead_tags",
+        "conname": "lead_tags_tag_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (tag_id) REFERENCES tags(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_closer_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (closer_id) REFERENCES profiles(id) ON DELETE SET NULL"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_setter_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (setter_id) REFERENCES profiles(id) ON DELETE SET NULL"
+      },
+      {
+        "relname": "org_settings",
+        "conname": "org_settings_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "profiles",
+        "conname": "profiles_email_key",
+        "pg_get_constraintdef": "UNIQUE (email)"
+      },
+      {
+        "relname": "profiles",
+        "conname": "profiles_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "smart_views",
+        "conname": "smart_views_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "smart_views",
+        "conname": "smart_views_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "tags",
+        "conname": "tags_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "tablename": "calls",
+        "indexname": "calls_lead_id_idx",
+        "indexdef": "CREATE INDEX calls_lead_id_idx ON public.calls USING btree (lead_id)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_pkey",
+        "indexdef": "CREATE UNIQUE INDEX calls_pkey ON public.calls USING btree (id)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_twilio_call_sid_key",
+        "indexdef": "CREATE UNIQUE INDEX calls_twilio_call_sid_key ON public.calls USING btree (twilio_call_sid)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_user_started_idx",
+        "indexdef": "CREATE INDEX calls_user_started_idx ON public.calls USING btree (user_id, started_at)"
+      },
+      {
+        "tablename": "lead_list_memberships",
+        "indexname": "lead_list_memberships_list_id_idx",
+        "indexdef": "CREATE INDEX lead_list_memberships_list_id_idx ON public.lead_list_memberships USING btree (list_id)"
+      },
+      {
+        "tablename": "lead_list_memberships",
+        "indexname": "lead_list_memberships_pkey",
+        "indexdef": "CREATE UNIQUE INDEX lead_list_memberships_pkey ON public.lead_list_memberships USING btree (lead_id, list_id)"
+      },
+      {
+        "tablename": "lead_lists",
+        "indexname": "lead_lists_owner_id_name_key_key",
+        "indexdef": "CREATE UNIQUE INDEX lead_lists_owner_id_name_key_key ON public.lead_lists USING btree (owner_id, name_key)"
+      },
+      {
+        "tablename": "lead_lists",
+        "indexname": "lead_lists_pkey",
+        "indexdef": "CREATE UNIQUE INDEX lead_lists_pkey ON public.lead_lists USING btree (id)"
+      },
+      {
+        "tablename": "lead_tags",
+        "indexname": "lead_tags_pkey",
+        "indexdef": "CREATE UNIQUE INDEX lead_tags_pkey ON public.lead_tags USING btree (lead_id, tag_id)"
+      },
+      {
+        "tablename": "lead_tags",
+        "indexname": "lead_tags_tag_id_idx",
+        "indexdef": "CREATE INDEX lead_tags_tag_id_idx ON public.lead_tags USING btree (tag_id)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_external_idx",
+        "indexdef": "CREATE INDEX leads_external_idx ON public.leads USING btree (external_id, external_source)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_phone_idx",
+        "indexdef": "CREATE INDEX leads_phone_idx ON public.leads USING btree (phone)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_pkey",
+        "indexdef": "CREATE UNIQUE INDEX leads_pkey ON public.leads USING btree (id)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_segment_idx",
+        "indexdef": "CREATE INDEX leads_segment_idx ON public.leads USING btree (segment)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_setter_id_idx",
+        "indexdef": "CREATE INDEX leads_setter_id_idx ON public.leads USING btree (setter_id)"
+      },
+      {
+        "tablename": "org_settings",
+        "indexname": "org_settings_pkey",
+        "indexdef": "CREATE UNIQUE INDEX org_settings_pkey ON public.org_settings USING btree (id)"
+      },
+      {
+        "tablename": "profiles",
+        "indexname": "profiles_email_key",
+        "indexdef": "CREATE UNIQUE INDEX profiles_email_key ON public.profiles USING btree (email)"
+      },
+      {
+        "tablename": "profiles",
+        "indexname": "profiles_pkey",
+        "indexdef": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+      },
+      {
+        "tablename": "smart_views",
+        "indexname": "smart_views_pkey",
+        "indexdef": "CREATE UNIQUE INDEX smart_views_pkey ON public.smart_views USING btree (id)"
+      },
+      {
+        "tablename": "smart_views",
+        "indexname": "smart_views_user_id_idx",
+        "indexdef": "CREATE INDEX smart_views_user_id_idx ON public.smart_views USING btree (user_id)"
+      },
+      {
+        "tablename": "tags",
+        "indexname": "tags_name_key_key",
+        "indexdef": "CREATE UNIQUE INDEX tags_name_key_key ON public.tags USING btree (name_key)"
+      },
+      {
+        "tablename": "tags",
+        "indexname": "tags_pkey",
+        "indexdef": "CREATE UNIQUE INDEX tags_pkey ON public.tags USING btree (id)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_pkey",
+        "indexdef": "CREATE UNIQUE INDEX tasks_pkey ON public.tasks USING btree (id)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_status_idx",
+        "indexdef": "CREATE INDEX tasks_status_idx ON public.tasks USING btree (status)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_user_due_idx",
+        "indexdef": "CREATE INDEX tasks_user_due_idx ON public.tasks USING btree (user_id, due_at)"
+      }
+    ],
+    "enums": [
+      {
+        "typname": "CallStatus",
+        "enumlabel": "initiated",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "ringing",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "in_progress",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "completed",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "no_answer",
+        "enumsortorder": 5
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "busy",
+        "enumsortorder": 6
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "failed",
+        "enumsortorder": 7
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "canceled",
+        "enumsortorder": 8
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "active",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "won",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "trashed",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "native",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "csv",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "ghl",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "manual",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "open",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "completed",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "canceled",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "admin",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "sales_manager",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "hiring_manager",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "sales_rep",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "closer",
+        "enumsortorder": 5
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "project_manager",
+        "enumsortorder": 6
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "hybrid",
+        "enumsortorder": 7
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "client",
+        "enumsortorder": 8
+      }
+    ],
+    "rls": [
+      {
+        "relname": "calls",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "lead_lists",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "lead_tags",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "leads",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "org_settings",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "profiles",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "smart_views",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "tags",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "tasks",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      }
+    ],
+    "policies": [],
+    "counts": {
+      "calls": 0,
+      "lead_list_memberships": 0,
+      "lead_lists": 0,
+      "lead_tags": 0,
+      "leads": 0,
+      "org_settings": 0,
+      "profiles": 0,
+      "smart_views": 0,
+      "tags": 0,
+      "tasks": 0
+    },
+    "data_hashes": {
+      "calls": "d41d8cd98f00b204e9800998ecf8427e",
+      "lead_list_memberships": "d41d8cd98f00b204e9800998ecf8427e",
+      "lead_lists": "d41d8cd98f00b204e9800998ecf8427e",
+      "lead_tags": "d41d8cd98f00b204e9800998ecf8427e",
+      "leads": "d41d8cd98f00b204e9800998ecf8427e",
+      "org_settings": "d41d8cd98f00b204e9800998ecf8427e",
+      "profiles": "d41d8cd98f00b204e9800998ecf8427e",
+      "smart_views": "d41d8cd98f00b204e9800998ecf8427e",
+      "tags": "d41d8cd98f00b204e9800998ecf8427e",
+      "tasks": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  },
+  "final_primary": {
+    "columns": [
+      {
+        "table_name": "calls",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "twilio_call_sid",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "status",
+        "udt_name": "CallStatus",
+        "is_nullable": "NO",
+        "column_default": "'initiated'::\"CallStatus\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "disposition",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "duration_seconds",
+        "udt_name": "int4",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "recording_url",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "started_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "calls",
+        "column_name": "ended_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_list_memberships",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_list_memberships",
+        "column_name": "list_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_list_memberships",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "owner_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "name",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 80
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "name_key",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 80
+      },
+      {
+        "table_name": "lead_lists",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_tags",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_tags",
+        "column_name": "tag_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "lead_tags",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "business_name",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "contact_name",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "phone",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "email",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "website",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "revenue",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "location",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "industry",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "sic_code",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "market",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "type",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "source",
+        "udt_name": "LeadSource",
+        "is_nullable": "NO",
+        "column_default": "'native'::\"LeadSource\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "segment",
+        "udt_name": "LeadSegment",
+        "is_nullable": "NO",
+        "column_default": "'active'::\"LeadSegment\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "sdr_status",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'no_contact'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "external_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "external_source",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "notes",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "dialed_count",
+        "udt_name": "int4",
+        "is_nullable": "NO",
+        "column_default": "0",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "setter_id",
+        "udt_name": "uuid",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "closer_id",
+        "udt_name": "uuid",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "leads",
+        "column_name": "updated_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'default'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_enabled",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_location_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "ghl_api_key",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "use_ghl_calendar",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "org_settings",
+        "column_name": "use_ghl_workflows",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "email",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "full_name",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "role",
+        "udt_name": "UserRole",
+        "is_nullable": "NO",
+        "column_default": "'sales_rep'::\"UserRole\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "phone",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "timezone",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": "'America/New_York'::text",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "google_calendar_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "dialer_hours_extended",
+        "udt_name": "bool",
+        "is_nullable": "NO",
+        "column_default": "false",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "twilio_phone_number",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "ghl_contact_id",
+        "udt_name": "text",
+        "is_nullable": "YES",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "profiles",
+        "column_name": "updated_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "name",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "filters",
+        "udt_name": "jsonb",
+        "is_nullable": "NO",
+        "column_default": "'{}'::jsonb",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "smart_views",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tags",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tags",
+        "column_name": "name",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 60
+      },
+      {
+        "table_name": "tags",
+        "column_name": "name_key",
+        "udt_name": "varchar",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": 60
+      },
+      {
+        "table_name": "tags",
+        "column_name": "created_at",
+        "udt_name": "timestamp",
+        "is_nullable": "NO",
+        "column_default": "CURRENT_TIMESTAMP",
+        "datetime_precision": 3,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "lead_id",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "user_id",
+        "udt_name": "uuid",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "note",
+        "udt_name": "text",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "due_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": null,
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "status",
+        "udt_name": "TaskStatus",
+        "is_nullable": "NO",
+        "column_default": "'open'::\"TaskStatus\"",
+        "datetime_precision": null,
+        "character_maximum_length": null
+      },
+      {
+        "table_name": "tasks",
+        "column_name": "created_at",
+        "udt_name": "timestamptz",
+        "is_nullable": "NO",
+        "column_default": "now()",
+        "datetime_precision": 6,
+        "character_maximum_length": null
+      }
+    ],
+    "constraints": [
+      {
+        "relname": "calls",
+        "conname": "calls_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_twilio_call_sid_key",
+        "pg_get_constraintdef": "UNIQUE (twilio_call_sid)"
+      },
+      {
+        "relname": "calls",
+        "conname": "calls_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "conname": "lead_list_memberships_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "conname": "lead_list_memberships_list_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (list_id) REFERENCES lead_lists(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "conname": "lead_list_memberships_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (lead_id, list_id)"
+      },
+      {
+        "relname": "lead_lists",
+        "conname": "lead_lists_owner_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (owner_id) REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_lists",
+        "conname": "lead_lists_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "lead_tags",
+        "conname": "lead_tags_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "lead_tags",
+        "conname": "lead_tags_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (lead_id, tag_id)"
+      },
+      {
+        "relname": "lead_tags",
+        "conname": "lead_tags_tag_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (tag_id) REFERENCES tags(id) ON UPDATE CASCADE ON DELETE CASCADE"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_closer_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (closer_id) REFERENCES profiles(id) ON DELETE SET NULL"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "leads",
+        "conname": "leads_setter_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (setter_id) REFERENCES profiles(id) ON DELETE SET NULL"
+      },
+      {
+        "relname": "org_settings",
+        "conname": "org_settings_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "profiles",
+        "conname": "profiles_email_key",
+        "pg_get_constraintdef": "UNIQUE (email)"
+      },
+      {
+        "relname": "profiles",
+        "conname": "profiles_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "smart_views",
+        "conname": "smart_views_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "smart_views",
+        "conname": "smart_views_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "tags",
+        "conname": "tags_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_lead_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_pkey",
+        "pg_get_constraintdef": "PRIMARY KEY (id)"
+      },
+      {
+        "relname": "tasks",
+        "conname": "tasks_user_id_fkey",
+        "pg_get_constraintdef": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+      }
+    ],
+    "indexes": [
+      {
+        "tablename": "calls",
+        "indexname": "calls_lead_id_idx",
+        "indexdef": "CREATE INDEX calls_lead_id_idx ON public.calls USING btree (lead_id)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_pkey",
+        "indexdef": "CREATE UNIQUE INDEX calls_pkey ON public.calls USING btree (id)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_twilio_call_sid_key",
+        "indexdef": "CREATE UNIQUE INDEX calls_twilio_call_sid_key ON public.calls USING btree (twilio_call_sid)"
+      },
+      {
+        "tablename": "calls",
+        "indexname": "calls_user_started_idx",
+        "indexdef": "CREATE INDEX calls_user_started_idx ON public.calls USING btree (user_id, started_at)"
+      },
+      {
+        "tablename": "lead_list_memberships",
+        "indexname": "lead_list_memberships_list_id_idx",
+        "indexdef": "CREATE INDEX lead_list_memberships_list_id_idx ON public.lead_list_memberships USING btree (list_id)"
+      },
+      {
+        "tablename": "lead_list_memberships",
+        "indexname": "lead_list_memberships_pkey",
+        "indexdef": "CREATE UNIQUE INDEX lead_list_memberships_pkey ON public.lead_list_memberships USING btree (lead_id, list_id)"
+      },
+      {
+        "tablename": "lead_lists",
+        "indexname": "lead_lists_owner_id_name_key_key",
+        "indexdef": "CREATE UNIQUE INDEX lead_lists_owner_id_name_key_key ON public.lead_lists USING btree (owner_id, name_key)"
+      },
+      {
+        "tablename": "lead_lists",
+        "indexname": "lead_lists_pkey",
+        "indexdef": "CREATE UNIQUE INDEX lead_lists_pkey ON public.lead_lists USING btree (id)"
+      },
+      {
+        "tablename": "lead_tags",
+        "indexname": "lead_tags_pkey",
+        "indexdef": "CREATE UNIQUE INDEX lead_tags_pkey ON public.lead_tags USING btree (lead_id, tag_id)"
+      },
+      {
+        "tablename": "lead_tags",
+        "indexname": "lead_tags_tag_id_idx",
+        "indexdef": "CREATE INDEX lead_tags_tag_id_idx ON public.lead_tags USING btree (tag_id)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_external_idx",
+        "indexdef": "CREATE INDEX leads_external_idx ON public.leads USING btree (external_id, external_source)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_phone_idx",
+        "indexdef": "CREATE INDEX leads_phone_idx ON public.leads USING btree (phone)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_pkey",
+        "indexdef": "CREATE UNIQUE INDEX leads_pkey ON public.leads USING btree (id)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_segment_idx",
+        "indexdef": "CREATE INDEX leads_segment_idx ON public.leads USING btree (segment)"
+      },
+      {
+        "tablename": "leads",
+        "indexname": "leads_setter_id_idx",
+        "indexdef": "CREATE INDEX leads_setter_id_idx ON public.leads USING btree (setter_id)"
+      },
+      {
+        "tablename": "org_settings",
+        "indexname": "org_settings_pkey",
+        "indexdef": "CREATE UNIQUE INDEX org_settings_pkey ON public.org_settings USING btree (id)"
+      },
+      {
+        "tablename": "profiles",
+        "indexname": "profiles_email_key",
+        "indexdef": "CREATE UNIQUE INDEX profiles_email_key ON public.profiles USING btree (email)"
+      },
+      {
+        "tablename": "profiles",
+        "indexname": "profiles_pkey",
+        "indexdef": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+      },
+      {
+        "tablename": "smart_views",
+        "indexname": "smart_views_pkey",
+        "indexdef": "CREATE UNIQUE INDEX smart_views_pkey ON public.smart_views USING btree (id)"
+      },
+      {
+        "tablename": "smart_views",
+        "indexname": "smart_views_user_id_idx",
+        "indexdef": "CREATE INDEX smart_views_user_id_idx ON public.smart_views USING btree (user_id)"
+      },
+      {
+        "tablename": "tags",
+        "indexname": "tags_name_key_key",
+        "indexdef": "CREATE UNIQUE INDEX tags_name_key_key ON public.tags USING btree (name_key)"
+      },
+      {
+        "tablename": "tags",
+        "indexname": "tags_pkey",
+        "indexdef": "CREATE UNIQUE INDEX tags_pkey ON public.tags USING btree (id)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_pkey",
+        "indexdef": "CREATE UNIQUE INDEX tasks_pkey ON public.tasks USING btree (id)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_status_idx",
+        "indexdef": "CREATE INDEX tasks_status_idx ON public.tasks USING btree (status)"
+      },
+      {
+        "tablename": "tasks",
+        "indexname": "tasks_user_due_idx",
+        "indexdef": "CREATE INDEX tasks_user_due_idx ON public.tasks USING btree (user_id, due_at)"
+      }
+    ],
+    "enums": [
+      {
+        "typname": "CallStatus",
+        "enumlabel": "initiated",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "ringing",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "in_progress",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "completed",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "no_answer",
+        "enumsortorder": 5
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "busy",
+        "enumsortorder": 6
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "failed",
+        "enumsortorder": 7
+      },
+      {
+        "typname": "CallStatus",
+        "enumlabel": "canceled",
+        "enumsortorder": 8
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "active",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "won",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "LeadSegment",
+        "enumlabel": "trashed",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "native",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "csv",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "ghl",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "LeadSource",
+        "enumlabel": "manual",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "open",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "completed",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "TaskStatus",
+        "enumlabel": "canceled",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "admin",
+        "enumsortorder": 1
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "sales_manager",
+        "enumsortorder": 2
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "hiring_manager",
+        "enumsortorder": 3
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "sales_rep",
+        "enumsortorder": 4
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "closer",
+        "enumsortorder": 5
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "project_manager",
+        "enumsortorder": 6
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "hybrid",
+        "enumsortorder": 7
+      },
+      {
+        "typname": "UserRole",
+        "enumlabel": "client",
+        "enumsortorder": 8
+      }
+    ],
+    "rls": [
+      {
+        "relname": "calls",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "lead_list_memberships",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "lead_lists",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "lead_tags",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "leads",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "org_settings",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "profiles",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "smart_views",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "tags",
+        "relrowsecurity": true,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      },
+      {
+        "relname": "tasks",
+        "relrowsecurity": false,
+        "relforcerowsecurity": false,
+        "owner": "postgres"
+      }
+    ],
+    "policies": [],
+    "counts": {
+      "calls": 1,
+      "lead_list_memberships": 2,
+      "lead_lists": 3,
+      "lead_tags": 1,
+      "leads": 1,
+      "org_settings": 1,
+      "profiles": 2,
+      "smart_views": 1,
+      "tags": 1,
+      "tasks": 1
+    },
+    "data_hashes": {
+      "calls": "7a12e1070a429416d65566d0d13a2041",
+      "lead_list_memberships": "c331921b2a0f211e1c05412c87dcf278",
+      "lead_lists": "46f49895aa9059f7953ea9102711a780",
+      "lead_tags": "0b48afca3db92039b42061083da9bec1",
+      "leads": "1922890f1c0644ecc1028d82b32321ea",
+      "org_settings": "5da6c93a38dc03c2978a7307b57eacf0",
+      "profiles": "a77af775d97e7e07d8d4b2ce3060c5ad",
+      "smart_views": "e4309a66df88a16940bf725e00ef4998",
+      "tags": "209242141c1be343ddb99bf1d3aafbf1",
+      "tasks": "ad923f0aa37e1f7d414131e7fd64ac66"
+    }
+  },
+  "checks": {
+    "five_fk_rejections": true,
+    "four_unique_rejections": true,
+    "two_idempotent_retries": true,
+    "one_lead_multiple_lists": true,
+    "cascade_and_data_rollback": true,
+    "rls_nonowner_all_four_crud": true,
+    "ddl_savepoint_rollback_six_core_tables_and_outer_rollback_empty": true,
+    "restored_catalog_counts_data_hashes_equal": true,
+    "full_schema_dump_equal_ignoring_random_restrict_tokens": true
+  },
+  "dump_bytes": 24517,
+  "dump_sha256": "60bb1222b8c4d5b5bbea6381f521bcfbdb79fb71ade88a60a9bca78e3ae15779",
+  "normalized_schema_sha256": "17baeebb06d9fb63d6e6acc53269ccb86110e5af3c767341e5997c54b752bd85",
+  "input_sha256": {
+    "baseline": "1468d1d5ee630523f547bacfb08770fa0e360d03acbc2493bd3f46a8eecf4911",
+    "additive": "d345e5ab43e9648bd71b698e7070214c5844a3c3d68587ac53b7c06d9204b16d",
+    "tests": "8c61eb8de9f966b72affdc195f3127342f63c045c7927dd02c8fa398d184cb81"
+  },
+  "limits": {
+    "Memory": 536870912,
+    "MemorySwap": 536870912,
+    "NanoCpus": 1000000000,
+    "PidsLimit": 100,
+    "PortBindings": {
+      "5432/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "55437"
+        }
+      ]
+    },
+    "LogConfig": {
+      "Type": "json-file",
+      "Config": {
+        "max-file": "2",
+        "max-size": "5m"
+      }
+    },
+    "RestartPolicy": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    }
+  },
+  "volume_options": {
+    "device": "tmpfs",
+    "o": "size=256m,uid=70,gid=70,mode=0700",
+    "type": "tmpfs"
+  },
+  "volume_usage": "Filesystem           1K-blocks      Used Available Use% Mounted on\ntmpfs                   262144     50972    211172  19% /var/lib/postgresql/data",
+  "stats": "83.64MiB / 512MiB | 0.02%",
+  "credential_mode": "0o600",
+  "dump_mode": "0o600"
+}

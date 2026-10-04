@@ -3,9 +3,8 @@ import { ComingSoon } from "@/components/ui/coming-soon";
 export default function AppointmentsPage() {
   return (
     <ComingSoon
-      title="Bookings"
-      description="Weekly appointment board with closer outcomes — Sat through Fri view."
-      phase="Phase 2"
+      title="Appointments"
+      description="Planned appointment tracking. Booking, calendar sync and closer outcomes are not available."
     />
   );
 }

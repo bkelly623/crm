@@ -1,12 +1,20 @@
 import twilio from "twilio";
 import { NextResponse } from "next/server";
 import { getCurrentProfile } from "@/lib/auth";
+import { salesLeadScope } from "@/lib/leads/access";
 
 export async function GET() {
+  // Server-only kill switch, not authorization to enable live calling.
+  if (process.env.TWILIO_CALLING_ENABLED !== "true") {
+    return NextResponse.json({ error: "Outbound calling disabled" }, { status: 503 });
+  }
+
   const profile = await getCurrentProfile();
   if (!profile) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  if (!salesLeadScope(profile)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const apiKey = process.env.TWILIO_API_KEY;

@@ -1,3 +1,5 @@
+import { notFound, redirect } from "next/navigation";
+import { salesLeadScope } from "@/lib/leads/access";
 import Link from "next/link";
 import { Headphones } from "lucide-react";
 import { DialerPanel } from "@/components/dialer/dialer-panel";
@@ -6,7 +8,8 @@ import { prisma } from "@/lib/prisma";
 
 export default async function DialerPage() {
   const profile = await getCurrentProfile();
-  if (!profile) return null;
+  if (!profile) redirect("/login");
+  if (!salesLeadScope(profile)) notFound();
 
   const smartViews = await prisma.smartView.findMany({
     where: { userId: profile.id },
@@ -18,9 +21,9 @@ export default async function DialerPage() {
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Floor</p>
       <div className="mt-2 flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight">Power dialer</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">Lead review queue</h1>
           <p className="mt-1 text-sm text-muted">
-            One lead at a time. Disposition, then next. Twilio Voice SDK wires in when credentials are set.
+            Review leads, or prepare browser audio for server-authorized pilot calls. One call at a time; wrap up before Next.
           </p>
         </div>
         <Link

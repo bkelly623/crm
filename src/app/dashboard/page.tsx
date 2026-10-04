@@ -1,3 +1,4 @@
+import { salesLeadScope } from "@/lib/leads/access";
 import { getCurrentProfile } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { roleLabel } from "@/lib/roles";
@@ -8,15 +9,25 @@ export default async function DashboardPage() {
   const profile = await getCurrentProfile();
   if (!profile) return null;
 
+  const scope = salesLeadScope(profile);
+  if (!scope) return (
+    <div className="p-8">
+      <h1 className="text-3xl font-semibold">Home</h1>
+      <p className="mt-2 text-muted">Sales tools are not available for this role. Contact your administrator if you need sales access.</p>
+      <Link href="/dashboard/settings" className="mt-4 inline-block text-primary underline">Account settings</Link>
+    </div>
+  );
+
   const [leadCount, callCount, openTasks] = await Promise.all([
-    prisma.lead.count({ where: { segment: "active" } }),
+    prisma.lead.count({ where: { AND: [scope, { segment: "active" }] } }),
     prisma.call.count({
       where: {
         userId: profile.id,
+        lead: scope,
         startedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
       },
     }),
-    prisma.task.count({ where: { userId: profile.id, status: "open" } }),
+    prisma.task.count({ where: { userId: profile.id, status: "open", lead: scope } }),
   ]);
 
   return (
@@ -28,21 +39,21 @@ export default async function DashboardPage() {
         Welcome back, {profile.fullName ?? profile.email.split("@")[0]}
       </h1>
       <p className="mt-2 max-w-xl text-muted">
-        Queue leads, run the dialer, and keep follow-ups tight — your outbound floor lives here.
+        Review assigned leads and manage follow-ups. Calling is disabled; the Dialer is a review queue only.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <StatCard label="Active leads" value={leadCount} />
-        <StatCard label="Calls today" value={callCount} />
-        <StatCard label="Open tasks" value={openTasks} />
+        <StatCard label="Your calls today (server time)" value={callCount} />
+        <StatCard label="Your open tasks" value={openTasks} />
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <QuickLink
           href="/dashboard/dialer"
           icon={Headphones}
-          title="Start dialing"
-          description="One-at-a-time power dial flow"
+          title="Review leads"
+          description="One lead at a time — review and save"
         />
         <QuickLink
           href="/dashboard/leads"

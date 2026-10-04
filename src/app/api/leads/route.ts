@@ -1,3 +1,6 @@
+import { listQuery, scalarQuery } from "@/lib/leads/query";
+import { organizerConstraints } from "@/lib/leads/selection";
+import { salesLeadScope } from "@/lib/leads/access";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth";
@@ -20,29 +23,21 @@ const createLeadSchema = z.object({
 
 export async function GET(request: Request) {
   const profile = await getCurrentProfile();
-  if (!profile) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const segment = searchParams.get("segment") ?? "active";
-  const q = searchParams.get("q") ?? "";
-  const myLeads = searchParams.get("myLeads") === "true";
-
-  const leads = await prisma.lead.findMany({
-    where: buildLeadWhere(
-      {
-        segment: segment as "active" | "won" | "trashed" | "all",
-        search: q || undefined,
-        myLeadsOnly: myLeads,
-      },
-      profile.id,
-    ),
-    orderBy: { updatedAt: "desc" },
-    take: 200,
-  });
-
-  return NextResponse.json({ leads });
+  if (!profile) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const scope = salesLeadScope(profile);
+  if (!scope) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const parsed = listQuery.safeParse(scalarQuery(new URL(request.url).searchParams));
+  if (!parsed.success) return NextResponse.json({ error: "Invalid lead filters" }, { status: 400 });
+  try {
+    const { segment, q, myLeads, after } = parsed.data;
+    const organizers = await organizerConstraints(profile, parsed.data);
+    if (!organizers) return NextResponse.json({ error: "Selection not found" }, { status: 404 });
+    const rows = await prisma.lead.findMany({
+      where: { AND: [scope, ...organizers, buildLeadWhere({ segment, search: q, myLeadsOnly: myLeads === "true" }, profile.id), ...(after ? [{ id: { gt: after } }] : [])] },
+      orderBy: { id: "asc" }, take: 51,
+    });
+    return NextResponse.json({ leads: rows.slice(0, 50), nextCursor: rows.length > 50 ? rows[49].id : null });
+  } catch { return NextResponse.json({ error: "Could not load leads. Please retry." }, { status: 500 }); }
 }
 
 export async function POST(request: Request) {
@@ -50,6 +45,7 @@ export async function POST(request: Request) {
   if (!profile) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (!salesLeadScope(profile)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = createLeadSchema.parse(await request.json());
 

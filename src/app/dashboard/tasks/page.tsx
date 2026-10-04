@@ -1,13 +1,17 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { salesLeadScope } from "@/lib/leads/access";
 import { prisma } from "@/lib/prisma";
 import { getCurrentProfile } from "@/lib/auth";
 
 export default async function TasksPage() {
   const profile = await getCurrentProfile();
   if (!profile) return null;
+  const scope = salesLeadScope(profile);
+  if (!scope) notFound();
 
   const tasks = await prisma.task.findMany({
-    where: { userId: profile.id, status: "open" },
+    where: { lead: scope, userId: profile.id, status: "open" },
     include: { lead: true },
     orderBy: { dueAt: "asc" },
   });

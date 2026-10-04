@@ -16,9 +16,8 @@ export default async function ExecutivePage() {
 
   return (
     <ComingSoon
-      title="Pulse"
-      description="Org-wide KPIs, conversion, and capacity — executive view."
-      phase="Phase 4"
+      title="Reports"
+      description="Planned team reporting. No executive metrics or conversion reports are available here."
     />
   );
 }

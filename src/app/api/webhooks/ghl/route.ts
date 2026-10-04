@@ -7,8 +7,12 @@ import { getIntegrationAdapter } from "@/lib/integrations";
  * Configure in GHL: POST https://your-app.vercel.app/api/webhooks/ghl
  */
 export async function POST(request: Request) {
+  const configuredSecret = process.env.GHL_WEBHOOK_SECRET;
+  if (!configuredSecret?.trim()) {
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 503 });
+  }
   const secret = request.headers.get("x-ghl-webhook-secret");
-  if (process.env.GHL_WEBHOOK_SECRET && secret !== process.env.GHL_WEBHOOK_SECRET) {
+  if (secret !== configuredSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
