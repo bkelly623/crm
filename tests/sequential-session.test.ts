@@ -88,6 +88,107 @@ it("Stop during pending microphone prevents late first call", async () => {
   const pending = f.session.start(); f.session.stop(); resolve(); await pending;
   expect(f.next).not.toHaveBeenCalled(); expect(f.device.connect).not.toHaveBeenCalled();
 });
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason: Error) => void;
+  const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; });
+  return { promise, resolve, reject };
+}
+it.each(["resolve", "reject"] as const)("fresh Start after interrupted microphone prepares again; old %s cannot affect the new run", async outcome => {
+  const f = await fixture();
+  const oldMic = deferred<void>(), newMic = deferred<void>(), queue = deferred<string>();
+  f.microphone.mockImplementationOnce(() => oldMic.promise).mockImplementationOnce(() => newMic.promise);
+  f.next.mockReset().mockImplementation(() => queue.promise);
+  const oldRun = f.session.start();
+  f.dialer.interrupt();
+  f.session.stop("Session paused by browser interruption. Start again explicitly.");
+  const newRun = f.session.start();
+  expect(f.microphone).toHaveBeenCalledTimes(2);
+  expect(f.dialer.snapshot.preparing).toBe(true);
+  expect(f.session.snapshot.active).toBe(true);
+  if (outcome === "resolve") oldMic.resolve(); else oldMic.reject(new Error("old permission denied"));
+  await oldRun;
+  expect(f.dialer.snapshot.preparing).toBe(true);
+  expect(f.dialer.snapshot.error).toBe("");
+  expect(f.session.snapshot).toEqual({ active: true, countdown: 0, error: "" });
+  expect(f.next).not.toHaveBeenCalled();
+  expect(f.device.connect).not.toHaveBeenCalled();
+  newMic.resolve();
+  await vi.advanceTimersByTimeAsync(0);
+  expect(f.next).toHaveBeenCalledTimes(1);
+  // A stale finally must not unlock the new queue/save operation for replay.
+  f.session.stop(); await f.session.start();
+  expect(f.session.snapshot.active).toBe(false);
+  expect(f.next).toHaveBeenCalledTimes(1);
+  queue.resolve("lead-1"); await newRun;
+  expect(f.device.connect).not.toHaveBeenCalled();
+  await f.session.start();
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.dialer.snapshot.locked).toBe(true);
+});
+it.each(["resolve", "reject"] as const)("old microphone %s cannot release a newer active call or replay its saved queue", async outcome => {
+  const f = await fixture();
+  const oldMic = deferred<void>(), save = deferred<string>();
+  f.microphone.mockImplementationOnce(() => oldMic.promise);
+  const oldRun = f.session.start();
+  f.dialer.interrupt(); f.session.stop();
+  await f.session.start();
+  expect(f.microphone).toHaveBeenCalledTimes(2);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.dialer.snapshot.locked).toBe(true);
+  const voiceBefore = { ...f.dialer.snapshot };
+  if (outcome === "resolve") oldMic.resolve(); else oldMic.reject(new Error("old permission denied"));
+  await oldRun;
+  expect(f.dialer.snapshot).toEqual(voiceBefore);
+  expect(f.session.snapshot).toEqual({ active: true, countdown: 0, error: "" });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.call.disconnect).not.toHaveBeenCalled();
+  expect(f.device.destroy).not.toHaveBeenCalled();
+  f.next.mockImplementation(() => save.promise);
+  await f.settle(); await vi.advanceTimersByTimeAsync(5000);
+  expect(f.next).toHaveBeenCalledTimes(2);
+  expect(f.next).toHaveBeenLastCalledWith(true);
+  f.session.stop();
+  // Even manual terminal wrap-up cannot permit replay of an unsettled save.
+  f.dialer.wrapUp(); await f.session.start();
+  expect(f.session.snapshot.active).toBe(false);
+  expect(f.next).toHaveBeenCalledTimes(2);
+  save.resolve("lead-2"); await vi.advanceTimersByTimeAsync(20000);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.session.snapshot.countdown).toBe(0);
+});
+it("Stop detaches only microphone preparation so a fresh explicit Start can prepare", async () => {
+  const f = await fixture(); const mic = deferred<void>();
+  f.microphone.mockImplementationOnce(() => mic.promise);
+  const oldRun = f.session.start(); f.session.stop();
+  expect(f.dialer.snapshot.preparing).toBe(false);
+  await f.session.start();
+  expect(f.microphone).toHaveBeenCalledTimes(2);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  mic.resolve(); await oldRun;
+  expect(f.next).toHaveBeenCalledTimes(1);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.dialer.snapshot.locked).toBe(true);
+});
+it("Stop retains intent-issuance exclusion and never retries a pending request", async () => {
+  const f = await fixture(); const issued = deferred<Response>();
+  f.fetcher.mockImplementation(async (url, init) => {
+    if (init?.method === "POST") return issued.promise;
+    if (String(url).includes("token")) return Response.json({ token: "fixture" });
+    return Response.json({ intent: null });
+  });
+  const pending = f.session.start(); await vi.advanceTimersByTimeAsync(0);
+  f.session.stop(); await f.session.start();
+  expect(f.dialer.snapshot.locked).toBe(true);
+  expect(f.next).toHaveBeenCalledTimes(1);
+  expect(f.fetcher.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1);
+  issued.resolve(Response.json({}, { status: 409 })); await pending;
+  await vi.advanceTimersByTimeAsync(20000);
+  expect(f.session.snapshot.active).toBe(false);
+  expect(f.dialer.snapshot.locked).toBe(true);
+  expect(f.device.connect).not.toHaveBeenCalled();
+  expect(f.fetcher.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1);
+});
 it.each(["error", "reconnecting"])("never automatically resumes after SDK %s then successful reconciliation", async event => {
   const f = await fixture(); await f.session.start(); f.events[event](); await f.settle();
   await vi.advanceTimersByTimeAsync(20000); expect(f.session.snapshot.active).toBe(false); expect(f.device.connect).toHaveBeenCalledTimes(1);

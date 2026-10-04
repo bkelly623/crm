@@ -10,7 +10,7 @@ export class SequentialSession {
   snapshot = { active: false, countdown: 0, error: "" };
   private epoch = 0;
   private dead = false;
-  private working = false;
+  private working?: { preparing: boolean };
   private armed = false;
   private timer?: ReturnType<typeof setTimeout>;
   private selected?: ReturnType<Dependencies["selection"]>;
@@ -29,8 +29,13 @@ export class SequentialSession {
     ++this.epoch;
     clearTimeout(this.timer); this.timer = undefined;
     this.armed = false;
+    // Only preflight can be detached. Queue/save and intent work must finish
+    // before another Start, even when their session epoch is no longer valid.
+    const preparing = this.working?.preparing;
+    if (preparing) this.working = undefined;
     this.set({ active: false, countdown: 0, error });
-    // Deliberately do NOT interrupt audio, wrap up, or release any call lock.
+    if (preparing && this.dialer.snapshot.preparing && !this.dialer.snapshot.locked) this.dialer.interrupt();
+    // Deliberately do NOT interrupt an active call, wrap up, or release any call lock.
   }
   private valid(epoch: number) {
     if (this.dead || !this.snapshot.active || epoch !== this.epoch) return false;
@@ -52,13 +57,18 @@ export class SequentialSession {
     await this.run(false, epoch);
   }
   private async run(advance: boolean, epoch: number) {
-    this.working = true;
+    const work = { preparing: false };
+    this.working = work;
     try {
       if (this.attempted.size >= REVIEW_SESSION_LIMIT) throw new Error("Session limit reached. Reload to explicitly start a new session.");
       if (advance) {
         const voice = this.dialer.snapshot;
         if (!voice.terminalProof || !voice.autoAdvanceSafe || voice.phase !== "wrapup") throw new Error("Call needs manual review before another call.");
-      } else if (!this.dialer.snapshot.ready) await this.dialer.prepare();
+      } else if (!this.dialer.snapshot.ready) {
+        work.preparing = true;
+        await this.dialer.prepare();
+        work.preparing = false;
+      }
       if (!this.valid(epoch)) return;
       if (!this.dialer.snapshot.ready) throw new Error("Audio unavailable. Start again explicitly after resolving the error.");
       const leadId = await this.deps.next(advance);
@@ -70,7 +80,10 @@ export class SequentialSession {
       this.attempted.add(leadId); this.armed = true;
       await this.dialer.start(leadId, this.selected!.callerIdSid);
     } catch (error) { if (!this.dead && epoch === this.epoch) this.stop(error instanceof Error ? error.message : "Session stopped. Resolve the error and start explicitly."); }
-    finally { this.working = false; this.observe(); }
+    finally {
+      // A detached preparation may settle after a fresh run has taken over.
+      if (this.working === work) { this.working = undefined; this.observe(); }
+    }
   }
   private observe() {
     if (!this.snapshot.active || this.dead) return;
