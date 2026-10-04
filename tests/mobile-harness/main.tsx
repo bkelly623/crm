@@ -10,8 +10,11 @@ import Settings from '../../src/app/dashboard/settings/page';
 import Tasks from '../../src/app/dashboard/tasks/page';
 import Calls from '../../src/app/dashboard/call-history/page';
 import { lead } from './server';
+import { request as sessionRequest } from './session-fixture';
 // Isolated harness only: no real authentication, SDK, provider or API requests.
 window.fetch = async (input, init) => {
+ const synthetic = await sessionRequest(input, init);
+ if (synthetic) return synthetic;
  const url = String(input);
  if (init?.method && init.method !== 'GET') return Response.json({error:'Harness blocks writes'}, {status:403});
  if (url.includes('/api/dialer/intents')) return Response.json({intent:null});

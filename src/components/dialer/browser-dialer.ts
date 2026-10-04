@@ -25,7 +25,7 @@ export interface VoiceDevice {
   destroy(): void;
 }
 export class BrowserDialer {
-  snapshot = { locked: true, ready: false, phase: "recovering", error: "", muted: false, hasCall: false, preparing: false, checking: false, pollingPaused: false };
+  snapshot = { locked: true, ready: false, phase: "recovering", error: "", muted: false, hasCall: false, preparing: false, checking: false, pollingPaused: false, autoAdvanceSafe: false, terminalProof: false };
   private device?: VoiceDevice;
   private call?: VoiceCall;
   private intent?: Intent;
@@ -43,7 +43,7 @@ export class BrowserDialer {
   getSnapshot = () => this.snapshot;
   private set(patch: Partial<typeof this.snapshot>) {
     if (this.dead) return;
-    this.snapshot = { ...this.snapshot, ...patch }; this.listeners.forEach(fn => fn());
+    this.snapshot = { ...this.snapshot, ...patch, ...(patch.error ? { autoAdvanceSafe: false } : {}) }; this.listeners.forEach(fn => fn());
   }
   private async request(path: string, options: RequestInit = {}) {
     const abort = new AbortController(); this.requests.add(abort);
@@ -94,7 +94,7 @@ export class BrowserDialer {
     if (this.dead || !this.device || !this.snapshot.ready || this.snapshot.locked || !leadId || !callerIdSid) return;
     const device = this.device, generation = ++this.generation;
     this.polls = 0; this.issuanceAttempted = true;
-    this.set({ locked: true, phase: "dialing", error: "", muted: false, pollingPaused: false });
+    this.set({ locked: true, phase: "dialing", error: "", muted: false, pollingPaused: false, autoAdvanceSafe: true, terminalProof: false });
     try {
       const data = await this.request("/api/dialer/intents", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leadId, callerIdSid }) });
       if (this.dead || generation !== this.generation) return;
@@ -109,7 +109,9 @@ export class BrowserDialer {
       for (const event of ["error", "reconnecting"]) call.on(event, () => { if (current()) { this.set({ ready: false }); this.uncertain(); this.poll(); } });
       for (const event of ["disconnect", "cancel", "reject"]) call.on(event, () => {
         if (!current()) return;
-        this.call = undefined; this.set({ hasCall: false }); this.uncertain(); this.poll();
+        this.call = undefined;
+        this.set({ hasCall: false, locked: true, phase: "reconciling", ...(event !== "disconnect" ? { error: "Browser call was canceled or rejected. Check server status before starting again manually." } : {}) });
+        this.poll();
       });
       this.poll();
     } catch { if (!this.dead && generation === this.generation) { this.uncertain(); this.poll(); } }
@@ -120,7 +122,10 @@ export class BrowserDialer {
     if (this.intentId && intent.id !== this.intentId) throw new Error();
     this.intent = intent; this.intentId = intent.id;
     const proven = intent.canStartNewIntent === true && !intent.locked && ["terminal", "expired", "canceled"].includes(intent.state);
-    this.set({ locked: true, phase: proven ? "wrapup" : intent.state === "connected" && intent.childStatus === "in-progress" ? "connected" : intent.state === "ringing" ? "ringing" : "reconciling", error: "" });
+    const terminal = (status: string | null) => status !== null && ["completed", "busy", "failed", "no-answer", "canceled"].includes(status);
+    // Terminal release proves the lease is settled, not that continuing is safe.
+    const failed = intent.state === "canceled" || [intent.parentStatus, intent.childStatus].some(status => status === "failed" || status === "canceled");
+    this.set({ locked: true, terminalProof: proven && terminal(intent.parentStatus) && terminal(intent.childStatus), phase: proven ? "wrapup" : intent.state === "connected" && intent.childStatus === "in-progress" ? "connected" : intent.state === "ringing" ? "ringing" : "reconciling", error: failed ? "Call failed or was canceled. Review the call before starting again manually." : "" });
   }
   wrapUp() {
     if (this.dead || this.snapshot.phase !== "wrapup" || !this.intent?.canStartNewIntent || this.intent.locked) return;

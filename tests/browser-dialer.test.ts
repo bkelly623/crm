@@ -160,6 +160,41 @@ it("aborts pending status transport on unmount without publishing or releasing",
   expect(signal?.aborted).toBe(true); await recovery;
   expect(f.dialer.snapshot.locked).toBe(true); expect(listener).toHaveBeenCalledTimes(1);
 });
+it("auto-next proof requires both terminal legs and never recovers after an error", async () => {
+  const f = await prepared(); await f.dialer.start("lead-1", "PN-fixture");
+  f.fetcher.mockImplementation(() => reply({ intent: status({ state: "terminal", locked: false, canStartNewIntent: true }) }));
+  await f.dialer.check(); expect(f.dialer.snapshot.terminalProof).toBe(false);
+  f.events.error();
+  f.fetcher.mockImplementation(() => reply({ intent: status({ state: "terminal", parentStatus: "completed", childStatus: "completed", locked: false, canStartNewIntent: true }) }));
+  await f.dialer.check(); expect(f.dialer.snapshot.terminalProof).toBe(true);
+  expect(f.dialer.snapshot.autoAdvanceSafe).toBe(false);
+});
+
+it.each([
+  { parentStatus: "failed", childStatus: "completed" },
+  { parentStatus: "completed", childStatus: "failed" },
+  { parentStatus: "canceled", childStatus: "completed" },
+  { parentStatus: "completed", childStatus: "canceled" },
+])("failed/canceled server legs $parentStatus/$childStatus preserve release proof and manual recovery", async legs => {
+  const f = await prepared(); await f.dialer.start("lead-1", "PN-fixture");
+  f.fetcher.mockImplementation(() => reply({ intent: status({ ...legs, state: "terminal", locked: false, canStartNewIntent: true }) }));
+  await f.dialer.check();
+  expect(f.dialer.snapshot).toMatchObject({ terminalProof: true, autoAdvanceSafe: false, phase: "wrapup", locked: true });
+  expect(f.dialer.snapshot.error).not.toBe("");
+  f.dialer.wrapUp(); expect(f.dialer.snapshot.locked).toBe(false);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+});
+it.each(["cancel", "reject"])("SDK %s holds until server proof but never restores auto-advance safety", async event => {
+  const f = await prepared(); await f.dialer.start("lead-1", "PN-fixture"); f.events[event]();
+  expect(f.dialer.snapshot).toMatchObject({ autoAdvanceSafe: false, terminalProof: false, locked: true, hasCall: false });
+  expect(f.dialer.snapshot.error).not.toBe("");
+  f.dialer.wrapUp(); expect(f.dialer.snapshot.locked).toBe(true);
+  f.fetcher.mockImplementation(() => reply({ intent: status({ state: "terminal", parentStatus: "completed", childStatus: "completed", locked: false, canStartNewIntent: true }) }));
+  await f.dialer.reconcile();
+  expect(f.dialer.snapshot).toMatchObject({ autoAdvanceSafe: false, terminalProof: true, phase: "wrapup" });
+  f.dialer.wrapUp(); expect(f.dialer.snapshot.locked).toBe(false);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+});
 it("malformed terminal proof cannot release a still-active status", async () => {
   const f = fixture(); f.fetcher.mockImplementation(() => reply({ intent: status({ state: "connected", childStatus: "in-progress", locked: false, canStartNewIntent: true }) }));
   await f.dialer.recover(); f.dialer.wrapUp(); expect(f.dialer.snapshot.locked).toBe(true);

@@ -1,5 +1,6 @@
 // Harness-only boundary: never access a real microphone, SDK or provider.
-export const browserDependencies = {
+import { enabled, syntheticDependencies } from './session-fixture';
+export const browserDependencies = enabled ? syntheticDependencies : {
  fetch: (...args: Parameters<typeof fetch>) => window.fetch(...args),
  microphone: async () => { throw new Error('Synthetic harness: microphone disabled'); },
  createDevice: async () => { throw new Error('Synthetic harness: SDK disabled'); },

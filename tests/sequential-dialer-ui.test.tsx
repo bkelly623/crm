@@ -1,0 +1,135 @@
+// @vitest-environment jsdom
+import { afterEach, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { DialerPanel } from "@/components/dialer/dialer-panel";
+const m = vi.hoisted(() => ({ microphone: vi.fn(), createDevice: vi.fn() }));
+vi.mock("@/components/dialer/voice-sdk-adapter", () => ({ browserDependencies: { ...m, fetch: (...args: Parameters<typeof fetch>) => fetch(...args), schedule: () => 1, cancel: vi.fn() } }));
+afterEach(() => { cleanup(); vi.useRealTimers(); });
+const sid = "PN" + "1".repeat(32);
+const click = (name: string) => fireEvent.click(screen.getByRole("button", { name }));
+async function setup() {
+  let intent: unknown = null;
+  let leadIndex = 0;
+  const call = { on: vi.fn(), disconnect: vi.fn(), mute: vi.fn(), sendDigits: vi.fn() };
+  const device = { on: vi.fn(), connect: vi.fn(async () => call), destroy: vi.fn(), updateToken: vi.fn() };
+  m.microphone.mockResolvedValue(undefined); m.createDevice.mockResolvedValue(device);
+  const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url.includes("lead-organizers/lists")) return Response.json({ items: [{ id: "list-1", name: "Selected list" }], nextCursor: null });
+    if (url.includes("numbers")) return Response.json({ numbers: [{ sid, phoneNumber: "+1202" + "5550101", friendlyName: "Office" }], hasMore: false, truncated: false, nextPage: null });
+    if (url.includes("next-lead")) return Response.json({ lead: { id: `lead-${++leadIndex}`, businessName: `Business ${leadIndex}`, phone: "+1202" + "5550102", sdrStatus: "no_contact" } });
+    if (url.includes("token")) return Response.json({ token: "fixture" });
+    if (init?.method === "PATCH") return Response.json({ success: true });
+    if (init?.method === "POST" && url === "/api/dialer/intents") return Response.json({ intent: { id: `intent-${leadIndex}` }, callingAvailable: true, recording: "do-not-record" });
+    return Response.json({ intent });
+  });
+  vi.stubGlobal("fetch", fetcher); render(<DialerPanel smartViews={[]} />);
+  await waitFor(() => expect((screen.getByRole("button", { name: "Load lists" }) as HTMLButtonElement).disabled).toBe(false));
+  return { device, call, fetcher, terminal: () => { intent = { id: "intent-1", leadId: "lead-1", state: "terminal", parentStatus: "completed", childStatus: "completed", locked: false, canStartNewIntent: true, recording: "do-not-record", expiresAt: "2026", finishedAt: null }; } };
+}
+async function select() {
+  click("Load lists"); await screen.findByRole("option", { name: "Selected list" });
+  fireEvent.change(screen.getByLabelText("Named list"), { target: { value: "list-1" } });
+  click("Load numbers"); await screen.findByRole("option", { name: /Office/ });
+  fireEvent.change(screen.getByLabelText("Call from"), { target: { value: sid } });
+}
+it("requires explicit list and number; Start session prepares and calls, Pause cancels countdown without hanging up", async () => {
+  const f = await setup();
+  expect((screen.getByRole("button", { name: "Start session" }) as HTMLButtonElement).disabled).toBe(true);
+  await select(); click("Start session");
+  await waitFor(() => expect(f.device.connect).toHaveBeenCalledTimes(1));
+  for (const name of ["Pause", "Stop", "Hang up"]) expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false);
+  fireEvent.change(screen.getByLabelText("Disposition"), { target: { value: "follow_up_needed" } });
+  f.terminal(); click("Check server status"); await screen.findByText(/Next call in 5 seconds/);
+  vi.useFakeTimers();
+  // Existing countdown was scheduled on real timers; Pause cancels it immediately.
+  click("Pause"); await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.call.disconnect).not.toHaveBeenCalled();
+  expect(screen.getByRole("button", { name: "Complete wrap-up" })).toBeTruthy();
+});
+
+async function started() {
+  const f = await setup(); await select(); click("Start session");
+  await waitFor(() => expect(f.device.connect).toHaveBeenCalledTimes(1));
+  vi.useFakeTimers();
+  return f;
+}
+async function settled(f: Awaited<ReturnType<typeof setup>>) {
+  f.terminal(); await act(async () => { click("Check server status"); });
+  expect(screen.getByText(/Next call in 5 seconds/)).toBeTruthy();
+}
+it("saves edited disposition before requesting and dialing the next excluded lead", async () => {
+  const f = await started();
+  fireEvent.change(screen.getByLabelText("Disposition"), { target: { value: "follow_up_needed" } });
+  await settled(f);
+  await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  const writes = f.fetcher.mock.calls.filter(([, init]) => init?.method === "PATCH");
+  expect(writes).toHaveLength(1); expect(JSON.parse(String(writes[0][1]?.body))).toEqual({ sdrStatus: "follow_up_needed" });
+  const paths = f.fetcher.mock.calls.map(([url]) => String(url));
+  const nextIndex = paths.findIndex(url => url.includes("exclude=lead-1"));
+  expect(nextIndex).toBeGreaterThan(paths.indexOf("/api/leads/lead-1"));
+  expect(paths[nextIndex]).toContain("listId=list-1");
+});
+it("unchanged disposition does not invent or save a call outcome", async () => {
+  const f = await started(); await settled(f);
+  await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  expect(f.fetcher.mock.calls.filter(([, init]) => init?.method === "PATCH")).toHaveLength(0);
+});
+it.each(["save", "queue"])("%s error stops auto-next and retains the draft without retry", async stage => {
+  const f = await started();
+  fireEvent.change(screen.getByLabelText("Disposition"), { target: { value: "follow_up_needed" } });
+  await settled(f);
+  const original = f.fetcher.getMockImplementation()!;
+  f.fetcher.mockImplementation(async (url, init) => (stage === "save" ? init?.method === "PATCH" : String(url).includes("next-lead")) ? Response.json({}, { status: 500 }) : original(url, init));
+  await act(async () => { await vi.advanceTimersByTimeAsync(60000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(screen.getAllByRole("alert").length).toBeGreaterThan(0);
+  expect((screen.getByLabelText("Disposition") as HTMLSelectElement).value).toBe("follow_up_needed");
+  expect(f.fetcher.mock.calls.filter(([, init]) => init?.method === "PATCH")).toHaveLength(1);
+});
+it.each(["offline", "pagehide", "hidden", "unmount"])("%s cancels countdown and never resumes when visible/online", async event => {
+  const f = await started(); await settled(f);
+  if (event === "unmount") cleanup();
+  else if (event === "hidden") { Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" }); fireEvent(document, new Event("visibilitychange")); }
+  else fireEvent(window, new Event(event));
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+  fireEvent(document, new Event("visibilitychange")); fireEvent(window, new Event("online"));
+  await act(async () => { await vi.advanceTimersByTimeAsync(60000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+});
+it("Stop during disposition save allows the write to settle but never fetches or calls another lead", async () => {
+  const f = await started();
+  fireEvent.change(screen.getByLabelText("Disposition"), { target: { value: "follow_up_needed" } });
+  await settled(f);
+  let resolve!: (r: Response) => void;
+  const original = f.fetcher.getMockImplementation()!;
+  f.fetcher.mockImplementation((url, init) => init?.method === "PATCH" ? new Promise(r => { resolve = r; }) : original(url, init));
+  await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+  click("Stop");
+  await act(async () => { resolve(Response.json({ success: true })); await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.fetcher.mock.calls.filter(([url]) => String(url).includes("next-lead"))).toHaveLength(1);
+  expect(f.device.connect).toHaveBeenCalledTimes(1); expect(f.call.disconnect).not.toHaveBeenCalled();
+});
+it("Start session refuses a hidden or offline page even before an interruption event", async () => {
+  const f = await setup(); await select();
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+  await act(async () => { click("Start session"); });
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+  expect(f.device.connect).not.toHaveBeenCalled();
+  Object.defineProperty(navigator, "onLine", { configurable: true, value: false });
+  await act(async () => { click("Start session"); });
+  Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
+  expect(f.device.connect).not.toHaveBeenCalled();
+});
+it("a hung queue times out, stops, and ignores a late lead", async () => {
+  const f = await started(); await settled(f);
+  let resolve!: (r: Response) => void;
+  f.fetcher.mockImplementation(() => new Promise(r => { resolve = r; }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(18000); });
+  expect(screen.getAllByRole("alert").length).toBeGreaterThan(0);
+  await act(async () => { resolve(Response.json({ lead: { id: "late", businessName: "Late business" } })); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1); expect(screen.queryByText("Late business")).toBeNull();
+});

@@ -3,7 +3,7 @@ import type { RefObject } from "react";
 import type { BrowserDialer } from "./browser-dialer";
 import { filterControl } from "@/components/leads/organizer-select";
 const labels: Record<string, string> = {
-  recovering: "Checking previous call…", review: "Review mode — browser audio not prepared", ready: "Browser audio prepared — Call is manual",
+  recovering: "Checking previous call…", review: "Review mode — browser audio not prepared", ready: "Browser audio prepared",
   dialing: "Connecting browser — recipient not yet confirmed", ringing: "Recipient ringing", connected: "Recipient connected",
   reconciling: "Reconciling — queue held until server confirmation", wrapup: "Call settled by server — complete your wrap-up",
 };
@@ -20,7 +20,7 @@ export function BrowserCallControls({ voice, controller, disabled }: { voice: Br
     {voice.locked && <>
       <p className="text-sm">Lead, list and caller ID are held. Browser disconnect does not end the server call. If this is a recovered call, audio cannot be reattached; wait for completion, then check server status. Do not start another call.</p>
       <button className={button} disabled={voice.checking} onClick={() => void controller.current?.reconcile()}>Check server status</button>
-      {voice.phase === "wrapup" && <button className={button} onClick={() => controller.current?.wrapUp()}>Complete wrap-up</button>}
+      {voice.phase === "wrapup" && <button className={button} disabled={disabled} onClick={() => controller.current?.wrapUp()}>Complete wrap-up</button>}
     </>}
     {voice.locked && !voice.hasCall && voice.phase === "dialing" && <button className={button + " border-red-600 text-red-700"} onClick={() => controller.current?.hangUp()}>Hang up</button>}
     {voice.hasCall && <div className="sticky bottom-2 z-10 space-y-3 rounded-xl border border-border bg-surface p-3">

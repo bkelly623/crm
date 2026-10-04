@@ -16,7 +16,8 @@ it("dialer describes review, not credential-enabled live calling", async () => {
   m.profile.mockResolvedValue({ id: "rep", role: "sales_rep" });
   const html = renderToStaticMarkup(await DialerPage());
   expect(html).toContain("Lead review queue"); expect(html).not.toContain("when credentials are set");
-  expect(html).toContain("server-authorized manual calls");
+  expect(html).toContain("Select a list and caller ID, then Start session.");
+  expect(html).not.toContain("prepare mic → Call");
   expect(html).not.toContain("pilot calls");
   expect(html).not.toContain("Approved pilot recipients only");
   expect(html).toContain("Eligible authorized leads only");
