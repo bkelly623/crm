@@ -56,6 +56,6 @@ export function CallerIdSelector({ disabled = false, onVerifiedChange }: { disab
     {!busy && available && !numbers.length && nextPage === null && !truncated && <p>No owned voice-capable numbers available.</p>}
     {!busy && available && truncated && <p role="status">Inventory limit reached; more provider numbers exist. Ask an administrator to review the catalog.</p>}
     {error && <p role="alert">{error}</p>}
-    <p className="text-sm">Manual selection only. Server authorization is required to call. Inventory can change; reload to refresh.</p>
+    <p className="text-sm">Load numbers, then select your caller ID. Reload to refresh.</p>
   </section>;
 }

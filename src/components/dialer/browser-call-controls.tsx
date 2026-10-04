@@ -14,7 +14,7 @@ export function BrowserCallControls({ voice, controller, disabled }: { voice: Br
     {voice.pollingPaused && voice.locked && <p className="text-sm">Automatic status checks paused after the bounded check window. Use Check server status; this never redials or releases a hold without server proof.</p>}
     {voice.error && <p role="alert">{voice.error}</p>}
     {!voice.locked && <>
-      <p className="text-sm">Use HTTPS and Android Chrome in the foreground. Allow microphone access when prompted. Check speaker/headset volume; keep this page open. Screen lock, app switching and cellular calls can interrupt audio. No automatic redial.</p>
+      <p className="text-sm">Keep this HTTPS page open in Android Chrome. Allow microphone access; check audio volume. Screen lock, app switching and cellular calls can interrupt audio. No automatic redial.</p>
       <button className={button} disabled={disabled || voice.preparing} onClick={() => void controller.current?.prepare()}>{voice.preparing ? "Preparing microphone…" : "Prepare browser calling"}</button>
     </>}
     {voice.locked && <>
@@ -32,6 +32,6 @@ export function BrowserCallControls({ voice, controller, disabled }: { voice: Br
         {"123456789*0#".split("").map(digit => <button key={digit} className={button} aria-label={`DTMF ${digit}`} onClick={() => controller.current?.digits(digit)}>{digit}</button>)}
       </div>
     </div>}
-    <p className="text-sm">Recording off. Server enablement cannot be changed here.</p>
+    <p className="text-sm">Recording off. Calling requires server authorization.</p>
   </section>;
 }

@@ -1,0 +1,52 @@
+{
+  "shortViewport": [
+    {
+      "phase": "before",
+      "form": {
+        "x": 16,
+        "y": -40,
+        "width": 288,
+        "height": 400,
+        "top": -40,
+        "right": 304,
+        "bottom": 360,
+        "left": 16
+      },
+      "overflow": "visible",
+      "small": 7,
+      "fonts": [
+        "14px",
+        "14px",
+        "14px",
+        "14px",
+        "14px"
+      ]
+    },
+    {
+      "phase": "after",
+      "form": {
+        "x": 16,
+        "y": 16,
+        "width": 288,
+        "height": 396,
+        "top": 16,
+        "right": 304,
+        "bottom": 412,
+        "left": 16
+      },
+      "overflow": "auto",
+      "small": 0,
+      "fonts": [
+        "16px",
+        "16px",
+        "16px",
+        "16px",
+        "16px"
+      ],
+      "createReachable": true
+    }
+  ],
+  "filtersToggle": true,
+  "syntheticLeadAndNumberLoaded": true,
+  "callDisabledWithoutMic": true
+}

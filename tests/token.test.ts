@@ -15,7 +15,8 @@ beforeEach(() => {
 });
 
 describe("token calling gate", () => {
-  it("retains authenticated offline token issuance only with exact true", async () => {
+  it.each([undefined, "", "+15005550008", "not-a-list"])("retains authenticated offline token issuance without legacy recipient config %s", async legacy => {
+    vi.stubEnv("TWILIO_TEST_RECIPIENT_ALLOWLIST", legacy);
     vi.stubEnv("TWILIO_CALLING_ENABLED", "true");
     const response = await GET();
     expect(response.status).toBe(200);

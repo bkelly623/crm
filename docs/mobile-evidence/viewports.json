@@ -1,0 +1,34 @@
+[
+  {
+    "width": 390,
+    "lg": false,
+    "toggle": true,
+    "nav": false,
+    "viewport": "width=device-width, initial-scale=1",
+    "mobile": true
+  },
+  {
+    "width": 390,
+    "lg": false,
+    "toggle": true,
+    "nav": false,
+    "viewport": "width=device-width, initial-scale=1",
+    "mobile": false
+  },
+  {
+    "width": 980,
+    "lg": false,
+    "toggle": true,
+    "nav": false,
+    "viewport": "width=device-width, initial-scale=1",
+    "mobile": true
+  },
+  {
+    "width": 1280,
+    "lg": true,
+    "toggle": false,
+    "nav": true,
+    "viewport": "width=device-width, initial-scale=1",
+    "mobile": false
+  }
+]

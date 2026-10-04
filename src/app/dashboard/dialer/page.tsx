@@ -17,18 +17,18 @@ export default async function DialerPage() {
   });
 
   return (
-    <div className="p-8">
+    <div className="min-w-0 p-4 pb-8 sm:p-6 lg:p-8">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Floor</p>
-      <div className="mt-2 flex items-center justify-between gap-4">
+      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight">Lead review queue</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Lead review queue</h1>
           <p className="mt-1 text-sm text-muted">
-            Review leads, or prepare browser audio for server-authorized pilot calls. One call at a time; wrap up before Next.
+            Load a lead → choose your number → prepare mic → Call. For server-authorized manual calls; wrap up before Next.
           </p>
         </div>
         <Link
           href="/dashboard/leads"
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-primary transition hover:border-primary/40"
+          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-primary transition hover:border-primary/40"
         >
           <Headphones className="h-4 w-4" />
           Lead board

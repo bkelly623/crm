@@ -60,7 +60,9 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
     } catch (e) { setError(e instanceof Error ? e.message : "Could not load queue. Please retry."); setStatus("error"); }
     finally { lock.current = false; setBusy(false); }
   }
-  return <div className="mt-8 min-w-0 space-y-6">
+  return <div className="mt-4 min-w-0 space-y-3">
+    <details className="rounded-xl border border-border bg-surface p-3">
+      <summary className="min-h-11 cursor-pointer py-2 font-medium">Queue filters</summary>
     <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
       <OrganizerSelect kind="lists" value={listId} disabled={busy || held} onChange={value => { if (!controller.current?.snapshot.locked) { setListId(value); clearReview(); } }} />
       <OrganizerSelect kind="tags" value={tagId} disabled={busy || held} onChange={value => { if (!controller.current?.snapshot.locked) { setTagId(value); clearReview(); } }} />
@@ -68,19 +70,20 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
         <option value="">No saved filter</option>{smartViews.map(view => <option key={view.id} value={view.id}>{view.name}</option>)}
       </select></label>
     </div>
-    <CallerIdSelector disabled={held} onVerifiedChange={setCallerIdSid} />
-    <BrowserCallControls voice={voice} controller={controller} disabled={busy || paused} />
-    <div className="flex flex-wrap gap-3">
+    </details>
+    <div className="grid grid-cols-[2fr_1fr_1fr] gap-2">
       <button className={filterControl + " sm:w-auto"} disabled={held || paused || busy || status === "limit"} onClick={() => advance(false)}>{lead ? "Next Lead" : "Load Lead"}</button>
       <button className={filterControl + " sm:w-auto"} disabled={busy || held} onClick={() => setPaused(!paused)}>{paused ? "Resume" : "Pause"}</button>
       <button className={filterControl + " sm:w-auto"} disabled={busy || held} onClick={() => { clearReview(); setPaused(false); }}>Stop</button>
     </div>
-    <p className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">Review mode works without browser audio. Calling unavailable until microphone preflight and server authorization succeed. Only approved pilot recipients can be called. Recording and phone-app fallback are disabled.</p>
+    <CallerIdSelector disabled={held} onVerifiedChange={setCallerIdSid} />
+    <BrowserCallControls voice={voice} controller={controller} disabled={busy || paused} />
+    <p className="text-sm text-amber-800">Calling unavailable until mic and server authorization succeed. Eligible authorized leads only; one-hour call limit. Recording and phone-app fallback disabled.</p>
     {error && <p role="alert">{error}</p>}
     {busy && <p role="status">Loading…</p>}
     {status === "empty" && <p role="status">No eligible unreviewed leads in this selection.</p>}
     {status === "limit" && <p role="status">Review session limit reached. Reload the page to explicitly start a new session.</p>}
-    {!lead && status === "idle" && <p>Ready to Review. Select a named list, tag or SmartView, then Load Lead.</p>}
+    {!lead && status === "idle" && <p>Ready to Review. Load Lead, then choose a number and prepare your microphone. Queue filters are optional.</p>}
     {lead && <section className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6">
       <h2 className="break-words text-xl font-bold">{lead.businessName}</h2>
       <p className="break-words">{lead.contactName ?? "—"} · {lead.phone ?? "No phone"}</p>

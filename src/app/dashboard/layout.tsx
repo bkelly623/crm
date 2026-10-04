@@ -34,7 +34,7 @@ export default async function DashboardLayout({
         userRole={profile.role}
         taskCount={taskCount}
       />
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="min-w-0 flex-1 pb-[env(safe-area-inset-bottom)]">{children}</main>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const intent = await issueCallIntent(profile.id, parsed.data);
     return json({ intent, callingAvailable: true, recording: "do-not-record" }, 201);
   } catch {
-    // Includes conflict, revoked access, allowlist/config/provider/DB failures.
+    // Includes conflict, revoked access, eligibility/config/provider/DB failures.
     // Never leak lead existence, provider diagnostics or credentials.
     return json({ error: "Call reservation unavailable" }, 409);
   }

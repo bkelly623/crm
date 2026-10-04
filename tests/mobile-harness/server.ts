@@ -1,0 +1,5 @@
+export const lead = { id: "synthetic-lead", businessName: "SYNTHETIC — North Valley Plumbing and Heating", contactName: "Synthetic Contact", phone: "+12025550102", email: "synthetic@example.invalid", website: "", revenue: "", location: "Example City", industry: "Plumbing", sicCode: "", market: "", type: "", sdrStatus: "no_contact", segment: "active", notes: "Synthetic notes only", source: "synthetic fixture", dialedCount: 0, tasks: [], calls: [] };
+export const profile = { id: "synthetic-user", email: "synthetic@example.invalid", fullName: "Synthetic Rep", role: "admin", createdAt: new Date() };
+export const getCurrentProfile = async () => profile;
+export const createClient = () => ({ auth: { signOut: async () => {} } });
+export const prisma = { task: { count: async () => 0, findMany: async () => [] }, call: { count: async () => 0, findMany: async () => [] }, lead: { count: async () => 1, findFirst: async () => lead }, smartView: { findMany: async () => [] }, profile: { findMany: async () => [profile] } };

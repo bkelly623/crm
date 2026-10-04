@@ -1,0 +1,1 @@
+export const usePathname = () => `/dashboard/${new URLSearchParams(location.search).get("screen") || "dialer"}`; export const useRouter = () => ({ push: () => {}, refresh: () => {} }); export function redirect() { throw Error("Harness redirect"); } export function notFound() { throw Error("Harness not found"); }

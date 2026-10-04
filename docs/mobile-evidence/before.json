@@ -1,0 +1,454 @@
+[
+  {
+    "screen": "dialer",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": [],
+    "loadTop": 1469,
+    "menuTogglePassed": true
+  },
+  {
+    "screen": "leads",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "detail",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "users",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 36
+      },
+      {
+        "text": "Create user",
+        "height": 40
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 32
+      }
+    ]
+  },
+  {
+    "screen": "settings",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "Eastern Time (ET)Central Time (CT)Mountain Ti",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 13
+      },
+      {
+        "text": "Save Changes",
+        "height": 36
+      }
+    ]
+  },
+  {
+    "screen": "tasks",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "calls",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "home",
+    "requestedWidth": 320,
+    "width": 320,
+    "scrollWidth": 320,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "dialer",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": [],
+    "loadTop": 1371,
+    "menuTogglePassed": true
+  },
+  {
+    "screen": "leads",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "detail",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "users",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 36
+      },
+      {
+        "text": "Create user",
+        "height": 40
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 32
+      }
+    ]
+  },
+  {
+    "screen": "settings",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "Eastern Time (ET)Central Time (CT)Mountain Ti",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 13
+      },
+      {
+        "text": "Save Changes",
+        "height": 36
+      }
+    ]
+  },
+  {
+    "screen": "tasks",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "calls",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "home",
+    "requestedWidth": 390,
+    "width": 390,
+    "scrollWidth": 390,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "dialer",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": [],
+    "loadTop": 1291,
+    "menuTogglePassed": true
+  },
+  {
+    "screen": "leads",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "detail",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "users",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 36
+      },
+      {
+        "text": "Create user",
+        "height": 40
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 32
+      }
+    ]
+  },
+  {
+    "screen": "settings",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "Eastern Time (ET)Central Time (CT)Mountain Ti",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 13
+      },
+      {
+        "text": "Save Changes",
+        "height": 36
+      }
+    ]
+  },
+  {
+    "screen": "tasks",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "calls",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "home",
+    "requestedWidth": 412,
+    "width": 412,
+    "scrollWidth": 412,
+    "chrome": 137,
+    "small": []
+  },
+  {
+    "screen": "dialer",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": [
+      {
+        "text": "Lead board",
+        "height": 38
+      }
+    ],
+    "loadTop": 770
+  },
+  {
+    "screen": "leads",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": []
+  },
+  {
+    "screen": "detail",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": []
+  },
+  {
+    "screen": "users",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 38
+      },
+      {
+        "text": "Create user",
+        "height": 40
+      },
+      {
+        "text": "AdminSales ManagerSales RepCloserHybridHiring",
+        "height": 32
+      }
+    ]
+  },
+  {
+    "screen": "settings",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": [
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "",
+        "height": 38
+      },
+      {
+        "text": "Eastern Time (ET)Central Time (CT)Mountain Ti",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 13
+      },
+      {
+        "text": "Save Changes",
+        "height": 36
+      }
+    ]
+  },
+  {
+    "screen": "tasks",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": []
+  },
+  {
+    "screen": "calls",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": []
+  },
+  {
+    "screen": "home",
+    "requestedWidth": 1280,
+    "width": 1280,
+    "scrollWidth": 1265,
+    "chrome": 844,
+    "small": []
+  }
+]

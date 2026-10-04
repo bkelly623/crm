@@ -75,7 +75,7 @@ export function Sidebar({
         }
       }}
     >
-      <div className="border-b border-white/10 px-5 py-5">
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2 lg:block lg:px-5 lg:py-5">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary font-display text-sm font-bold text-primary-foreground">
             OP
@@ -85,7 +85,6 @@ export function Sidebar({
             <p className="text-xs text-sidebar-muted">{roleLabel(userRole)}</p>
           </div>
         </div>
-      </div>
 
       <button
         type="button"
@@ -93,10 +92,11 @@ export function Sidebar({
         aria-expanded={open}
         aria-controls={navigationId}
         onClick={() => setOpen(!open)}
-        className="mx-3 mb-3 min-h-11 rounded-xl border border-white/20 px-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white lg:hidden"
+        className="min-h-11 shrink-0 rounded-xl border border-white/20 px-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white lg:hidden"
       >
         {open ? "Close navigation" : "Open navigation"}
       </button>
+      </div>
       <div id={navigationId} className={cn("min-h-0 flex-1 flex-col lg:flex", open ? "flex" : "hidden")}>
         <nav aria-label="Primary navigation" className="flex-1 space-y-0.5 overflow-y-auto p-3">
           {nav.filter(item => !item.roles || item.roles.includes(userRole)).filter((item, index, visible) => visible.findIndex((entry) => entry.href === item.href) === index).map((item) => {

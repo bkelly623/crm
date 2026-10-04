@@ -92,12 +92,12 @@ it.each(["same-user", "same-lead", "same-both"])("real PostgreSQL race has exact
   expect(await db.callIntent.count({ where: { userId: { in: users } } })).toBe(1);
   expect(await db.callIntentLease.count({ where: { userId: { in: users } } })).toBe(1);
 });
-it.each([undefined, "", "+12025550103", "*", " +12025550102", "+12025550102,"])("rejects missing/nonmatching/malformed allowlist %s", async value => {
+it.each([undefined, "", "+12025550103", "*", " +12025550102", "+12025550102,"])("legacy missing/nonmatching/malformed allowlist does not restrict authorized leads %s", async value => {
   await resetReservations();
   vi.stubEnv("TWILIO_TEST_RECIPIENT_ALLOWLIST", value);
-  try { await expect(intents.issueCallIntent(users[0], { leadId: leads[0], callerIdSid })).rejects.toThrow(); }
+  try { await expect(intents.issueCallIntent(users[0], { leadId: leads[0], callerIdSid })).resolves.toMatchObject({ id: expect.any(String) }); }
   finally { vi.stubEnv("TWILIO_TEST_RECIPIENT_ALLOWLIST", "+12025550102"); }
-  expect(await db.callIntent.count({ where: { userId: { in: users } } })).toBe(0);
+  expect(await db.callIntent.count({ where: { userId: { in: users } } })).toBe(1);
 });
 it.each([null, "2025550102", "+12025550102 ext 9", "client:other", "+02025550102", "+1202"])("denies ambiguous or malformed stored destination %s", async phone => {
   await resetReservations();

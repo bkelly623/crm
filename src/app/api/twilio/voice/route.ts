@@ -16,7 +16,8 @@ export async function POST(request: Request) {
     const bound = await bindCallIntent({ intentId: field("IntentId"), from: field("From"), accountSid: field("AccountSid"), parentCallSid: field("CallSid") });
     const base = new URL(process.env.TWILIO_WEBHOOK_BASE_URL!).origin;
     const callback = `${base}/api/twilio/status?intentId=${bound.id}`;
-    response.dial({ callerId: bound.callerNumber, record: "do-not-record", timeout: 30, timeLimit: 120,
+    // Normal manual-call ceiling: one hour, not an aggregate spend limit.
+    response.dial({ callerId: bound.callerNumber, record: "do-not-record", timeout: 30, timeLimit: 3600,
       action: `${callback}&event=action`, method: "POST" }).number({
       statusCallback: `${callback}&event=child`, statusCallbackMethod: "POST",
       statusCallbackEvent: ["initiated", "ringing", "answered", "completed"],

@@ -35,7 +35,7 @@ export function NewLeadButton() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg border border-border bg-white px-3 py-2 text-sm"
+        className="min-h-11 rounded-lg border border-border bg-white px-3 py-2 text-sm"
       >
         + New Lead
       </button>
@@ -43,22 +43,22 @@ export function NewLeadButton() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 rounded-xl bg-white p-6 shadow-lg"
+        className="my-auto w-full max-w-md space-y-3 rounded-xl bg-white p-4 shadow-lg sm:p-6"
       >
         <h2 className="text-lg font-semibold">New Lead</h2>
-        <input name="businessName" required placeholder="Business name *" className="w-full rounded-lg border px-3 py-2 text-sm" />
-        <input name="contactName" placeholder="Contact name" className="w-full rounded-lg border px-3 py-2 text-sm" />
-        <input name="phone" placeholder="Phone" className="w-full rounded-lg border px-3 py-2 text-sm" />
-        <input name="email" placeholder="Email" className="w-full rounded-lg border px-3 py-2 text-sm" />
-        <input name="location" placeholder="Location" className="w-full rounded-lg border px-3 py-2 text-sm" />
+        <input name="businessName" required placeholder="Business name *" className="min-h-11 w-full rounded-lg border px-3 py-2 text-base" />
+        <input name="contactName" placeholder="Contact name" className="min-h-11 w-full rounded-lg border px-3 py-2 text-base" />
+        <input name="phone" placeholder="Phone" className="min-h-11 w-full rounded-lg border px-3 py-2 text-base" />
+        <input name="email" placeholder="Email" className="min-h-11 w-full rounded-lg border px-3 py-2 text-base" />
+        <input name="location" placeholder="Location" className="min-h-11 w-full rounded-lg border px-3 py-2 text-base" />
         <div className="flex gap-2">
-          <button type="submit" disabled={loading} className="flex-1 rounded-lg bg-primary py-2 text-sm text-white">
+          <button type="submit" disabled={loading} className="min-h-11 flex-1 rounded-lg bg-primary py-2 text-sm text-white">
             {loading ? "Saving..." : "Create"}
           </button>
-          <button type="button" onClick={() => setOpen(false)} className="flex-1 rounded-lg border py-2 text-sm">
+          <button type="button" onClick={() => setOpen(false)} className="min-h-11 flex-1 rounded-lg border py-2 text-sm">
             Cancel
           </button>
         </div>

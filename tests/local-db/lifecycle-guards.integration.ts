@@ -37,7 +37,7 @@ beforeEach(async () => {
   vi.stubEnv("TWILIO_CALLING_ENABLED", "true"); vi.stubEnv("TWILIO_TEST_RECIPIENT_ALLOWLIST", "+12025550102");
   vi.stubEnv("TWILIO_ACCOUNT_SID", accountSid); vi.stubEnv("TWILIO_AUTH_TOKEN", "synthetic"); vi.stubEnv("TWILIO_WEBHOOK_BASE_URL", "https://crm.example.test");
   vi.mocked(RequestClient.prototype.request).mockReset().mockResolvedValue(inventory);
-  await db.lead.update({ where: { id: lead }, data: { dialedCount: 0 } });
+  await db.lead.update({ where: { id: lead }, data: { dialedCount: 0, sdrStatus: "no_contact" } });
   id = (await issueCallIntent(user, { leadId: lead, callerIdSid })).id;
 });
 afterAll(async () => {
@@ -99,12 +99,12 @@ it("concurrent REST reconciliation and callbacks produce one account entry with 
   expect((await db.lead.findUniqueOrThrow({ where: { id: lead } })).dialedCount).toBe(1);
   expect(await readIntentStatus(user, id)).toMatchObject({ locked: false, state: "terminal" });
 });
-it.each(["timeout", "account", "allowlist", "number", "voice", "disabled"])("fresh voice authority fails closed after issuance: %s", async mode => {
+it.each(["timeout", "account", "eligibility", "number", "voice", "disabled"])("fresh voice authority fails closed after issuance: %s", async mode => {
   if (mode === "timeout") vi.mocked(RequestClient.prototype.request).mockRejectedValue(new Error("timeout"));
   if (mode === "account") vi.mocked(RequestClient.prototype.request).mockResolvedValue({ ...inventory, body: { ...inventory.body, account_sid: "AC" + "9".repeat(32) } });
   if (mode === "number") vi.mocked(RequestClient.prototype.request).mockResolvedValue({ ...inventory, body: { ...inventory.body, phone_number: "+12025550199" } });
   if (mode === "voice") vi.mocked(RequestClient.prototype.request).mockResolvedValue({ ...inventory, body: { ...inventory.body, capabilities: { voice: false } } });
-  if (mode === "allowlist") vi.stubEnv("TWILIO_TEST_RECIPIENT_ALLOWLIST", "");
+  if (mode === "eligibility") await db.lead.update({ where: { id: lead }, data: { sdrStatus: "dnc" } });
   if (mode === "disabled") vi.stubEnv("TWILIO_CALLING_ENABLED", "TRUE");
   const fields = { IntentId: id, AccountSid: accountSid, From: `client:${user}`, CallSid: parent };
   const url = "https://crm.example.test/api/twilio/voice";
