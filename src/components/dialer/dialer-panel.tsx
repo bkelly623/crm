@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { InlineLeadWork } from "./inline-lead-work";
 import { SequentialSession } from "./sequential-session";
 import { CallerIdSelector } from "@/components/dialer/caller-id-selector";
 import Link from "next/link";
@@ -15,7 +16,9 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
   const [callerIdSid, setCallerIdSid] = useState("");
   const session = useRef<SequentialSession | null>(null);
   const [sessionState, setSessionState] = useState({ active: false, countdown: 0, error: "" });
-  const held = voice.locked || voice.preparing || sessionState.active;
+  const [editing, setEditing] = useState(false);
+  const editingRef = useRef(false);
+  const held = voice.locked || voice.preparing || sessionState.active || editing;
   const [selectedView, setSelectedView] = useState("");
   const [listId, setListId] = useState("");
   const [tagId, setTagId] = useState("");
@@ -52,7 +55,7 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
     if (selectedView) qs.set("smartViewId", selectedView);
     reviewed.current.forEach(id => qs.append("exclude", id));
     const { res, data } = await queueRequest(`/api/dialer/next-lead${qs.size ? `?${qs}` : ""}`);
-    if (version !== selectionVersion.current) return;
+    if (version !== selectionVersion.current || editingRef.current) return;
     if (!res.ok) {
       if ([400, 404].includes(res.status)) { setListId(""); setTagId(""); setSelectedView(""); setLead(null); }
       throw new Error("Could not load queue. Check your selection and retry.");
@@ -62,7 +65,7 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
     return data.lead as Lead | null;
   }
   async function advance(save: boolean) {
-    if (lock.current || controller.current?.snapshot.locked || controller.current?.snapshot.preparing || session.current?.snapshot.active) return; lock.current = true; setBusy(true); setError("");
+    if (editingRef.current || lock.current || controller.current?.snapshot.locked || controller.current?.snapshot.preparing || session.current?.snapshot.active) return; lock.current = true; setBusy(true); setError("");
     const version = selectionVersion.current;
     try {
       if (lead) {
@@ -79,6 +82,7 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
     finally { lock.current = false; setBusy(false); }
   }
   async function sessionNext(advance: boolean): Promise<string | null> {
+    if (editingRef.current) throw new Error("Close notes and follow-up before starting again.");
     if (lock.current) throw new Error("Queue operation already in progress. Start again explicitly.");
     lock.current = true; setBusy(true); setError("");
     const version = selectionVersion.current;
@@ -130,10 +134,16 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
   return <div className="mt-4 min-w-0 space-y-3">
     <OrganizerSelect kind="lists" value={listId} disabled={busy || held} onChange={value => { if (!controller.current?.snapshot.locked && !session.current?.snapshot.active) { setListId(value); clearReview(); } }} />
     <CallerIdSelector disabled={held || busy} onVerifiedChange={setCallerIdSid} />
-    <div className="sticky top-0 z-10 grid grid-cols-[2fr_1fr_1fr] gap-2 rounded-xl bg-surface p-2">
-      <button className={filterControl} disabled={held || busy || !listId || !callerIdSid || status === "limit"} onClick={() => { setPaused(false); void session.current?.start(); }}>Start session</button>
+    <div className="sticky top-0 z-10 rounded-xl bg-surface p-2" data-inline-call-toolbar>
+    <div className="grid grid-cols-[2fr_1fr_1fr] gap-2">
+      <button className={filterControl} disabled={held || busy || !listId || !callerIdSid || status === "limit"} onClick={() => { if (!editingRef.current) { setPaused(false); void session.current?.start(); } }}>Start session</button>
       <button className={filterControl} onClick={stopSession}>Pause</button>
       <button className={filterControl} onClick={endSession}>End session</button>
+    </div>
+    {editing && voice.hasCall && <div className="mt-2 grid grid-cols-2 gap-2">
+      <button className={filterControl} aria-pressed={voice.muted} onClick={() => controller.current?.mute()}>{voice.muted ? "Unmute current call" : "Mute current call"}</button>
+      <button className={filterControl + " text-red-700"} onClick={() => controller.current?.hangUp()}>Hang up current call</button>
+    </div>}
     </div>
     <p className="text-sm">Start session prepares your microphone and calls the first lead. Then call this list one at a time, with a cancellable 5-second pause after server-confirmed completion. Hang up ends this call and keeps the session going after server confirmation. Pause stops future calls without hanging up; End session stops future calls and hangs up current audio. This delay provides wrap-up time, not protection from spam labels.</p>
     {sessionState.countdown > 0 && <p role="status">Next call in {sessionState.countdown} seconds — Pause or End session to cancel.</p>}
@@ -164,6 +174,8 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
       <h2 className="break-words text-xl font-bold">{lead.businessName}</h2>
       <p className="break-words">{lead.contactName ?? "—"} · {lead.phone ?? "No phone"}</p>
       {!sessionState.active && <button className={filterControl + " mt-3 sm:w-auto"} disabled={held || busy || paused || !voice.ready || !callerIdSid || !lead.phone} onClick={() => { if (!lock.current) void controller.current?.start(lead.id, callerIdSid); }}>Call</button>}
+      {!editing && <button className={filterControl + " mt-3"} disabled={busy} onClick={() => { if (lock.current) return; editingRef.current = true; stopSession(); setEditing(true); }}>Notes &amp; follow-up</button>}
+      {editing && <InlineLeadWork key={lead.id} leadId={lead.id} onClose={() => { editingRef.current = false; setEditing(false); }} />}
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <label>Disposition<select className={filterControl} value={disposition} disabled={busy} onChange={e => setDisposition(e.target.value)}>{SDR_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></label>
         {!sessionState.active && <button className={filterControl} onClick={() => advance(true)} disabled={held || paused || busy}>Save &amp; Next</button>}

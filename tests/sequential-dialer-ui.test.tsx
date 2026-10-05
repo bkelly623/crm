@@ -53,6 +53,62 @@ it("requires explicit list and number; Start session prepares and calls, Pause c
   expect(screen.getByRole("button", { name: "Complete wrap-up" })).toBeTruthy();
 });
 
+it("inline shared notes pauses a live session, retains its lead and requires explicit close/resume", async () => {
+  const f = await setup(); await select(); click("Start session");
+  await waitFor(() => expect(f.device.connect).toHaveBeenCalledTimes(1));
+  const original = f.fetcher.getMockImplementation()!;
+  f.fetcher.mockImplementation((url, init) => url === "/api/leads/lead-1" && !init?.method ? Promise.resolve(Response.json({ lead: { id: "lead-1", notes: "Existing shared context" } })) : original(url, init));
+  click("Notes & follow-up");
+  await waitFor(() => expect((screen.getByLabelText("Shared lead notes") as HTMLTextAreaElement).value).toBe("Existing shared context"));
+  expect((screen.getByRole("button", { name: "Hang up current call" }) as HTMLButtonElement).disabled).toBe(false);
+  expect(screen.getByRole("button", { name: "Mute current call" }).closest("[data-inline-call-toolbar]")).toBeTruthy();
+  fireEvent.change(screen.getByLabelText("Shared lead notes"), { target: { value: "Existing shared context\nSpoke today" } });
+  expect((screen.getByRole("button", { name: "Hang up" }) as HTMLButtonElement).disabled).toBe(false);
+  expect(f.call.disconnect).not.toHaveBeenCalled();
+  vi.useFakeTimers(); f.terminal();
+  await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(10000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect((screen.getByRole("button", { name: "Next Lead" }) as HTMLButtonElement).disabled).toBe(true);
+  await act(async () => { click("Save notes"); });
+  const write = f.fetcher.mock.calls.find(([url, init]) => url === "/api/leads/lead-1" && init?.method === "PATCH");
+  expect(JSON.parse(String(write?.[1]?.body))).toEqual({ notes: "Existing shared context\nSpoke today" });
+  expect((screen.getByRole("button", { name: "Start session" }) as HTMLButtonElement).disabled).toBe(true);
+  click("Close notes & follow-up");
+  await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+});
+
+it("opening inline work cancels countdown; task drafts and pending note saves cannot advance or change selection", async () => {
+  const f = await setup(); await select(); click("Start session");
+  await waitFor(() => expect(f.device.connect).toHaveBeenCalledTimes(1));
+  const original = f.fetcher.getMockImplementation()!;
+  let release!: (r: Response) => void;
+  f.fetcher.mockImplementation((url, init) => url === "/api/leads/lead-1" ? init?.method === "PATCH" ? new Promise(r => { release = r; }) : Promise.resolve(Response.json({ lead: { id: "lead-1", notes: "Existing" } })) : original(url, init));
+  f.terminal(); click("Check server status"); await screen.findByText(/Next call in 5 seconds/);
+  click("Notes & follow-up");
+  await waitFor(() => expect((screen.getByLabelText("Shared lead notes") as HTMLTextAreaElement).value).toBe("Existing"));
+  fireEvent.change(screen.getByLabelText("Follow-up note"), { target: { value: "Task draft during call" } });
+  fireEvent.change(screen.getByLabelText("Shared lead notes"), { target: { value: "Note draft during call" } });
+  click("Save notes");
+  for (const label of ["Named list", "Call from", "SmartView"]) expect((screen.getByLabelText(label) as HTMLSelectElement).disabled).toBe(true);
+  click("Complete wrap-up");
+  expect((screen.getByRole("button", { name: "Start session" }) as HTMLButtonElement).disabled).toBe(true);
+  vi.useFakeTimers(); await act(async () => { await vi.advanceTimersByTimeAsync(6000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.fetcher.mock.calls.filter(([url]) => String(url).includes("next-lead"))).toHaveLength(1);
+  click("Close notes & follow-up");
+  await act(async () => release(Response.json({ success: true })));
+  expect((screen.getByLabelText("Follow-up note") as HTMLTextAreaElement).value).toBe("Task draft during call");
+  expect((screen.getByRole("button", { name: "Close notes & follow-up" }) as HTMLButtonElement).disabled).toBe(true);
+  click("Discard follow-up draft"); click("Close notes & follow-up");
+  await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  await act(async () => click("Next Lead"));
+  expect(screen.getByText("Business 2")).toBeTruthy();
+  await act(async () => click("Start session"));
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+});
+
 async function started() {
   const f = await setup(); await select(); click("Start session");
   await waitFor(() => expect(f.device.connect).toHaveBeenCalledTimes(1));
