@@ -10,7 +10,7 @@ it('keeps advanced filters in a native disclosure without hiding setup, session 
  const summary = screen.getByText('Advanced filters & manual review');
  expect(summary.tagName).toBe('SUMMARY');
  expect(summary.parentElement?.hasAttribute('open')).toBe(false);
- for (const name of ['Load lists', 'Load numbers', 'Start session', 'Pause', 'Stop']) expect(screen.getByRole('button',{name}).closest('details')).toBeNull();
+ for (const name of ['Load lists', 'Load numbers', 'Start session', 'Pause', 'End session']) expect(screen.getByRole('button',{name}).closest('details')).toBeNull();
  fireEvent.click(screen.getByRole('button',{name:'Load Lead'}));
  expect((await screen.findByRole('alert')).closest('details')).toBeNull();
 });

@@ -30,7 +30,7 @@ it("mobile manual call locks queue/caller/lead until server terminal and human w
   click("Prepare browser calling"); await waitFor(() => expect((screen.getByRole("button", { name: "Call" }) as HTMLButtonElement).disabled).toBe(false));
   click("Call"); click("Call"); await waitFor(() => expect(device.connect).toHaveBeenCalledOnce());
   for (const name of ["Next Lead", "Save & Next", "Reload numbers"]) expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(true);
-  for (const name of ["Pause", "Stop"]) expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false);
+  for (const name of ["Pause", "End session"]) expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false);
   expect((screen.getByLabelText("Call from") as HTMLSelectElement).disabled).toBe(true);
   expect(screen.queryByRole("link", { name: "Open Lead" })).toBeNull();
   await act(async () => events.accept()); expect(screen.queryByText("Recipient connected")).toBeNull();

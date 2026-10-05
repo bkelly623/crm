@@ -121,20 +121,26 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
     };
   }, [controller]);
   function stopSession() { selectionVersion.current++; session.current?.stop(); setPaused(true); }
+  function endSession() {
+    // Revoke pending work synchronously before audio teardown can emit events.
+    stopSession();
+    const dialer = controller.current;
+    if (dialer?.snapshot.locked && (dialer.snapshot.hasCall || dialer.snapshot.phase !== "wrapup")) dialer.hangUp();
+  }
   return <div className="mt-4 min-w-0 space-y-3">
     <OrganizerSelect kind="lists" value={listId} disabled={busy || held} onChange={value => { if (!controller.current?.snapshot.locked && !session.current?.snapshot.active) { setListId(value); clearReview(); } }} />
     <CallerIdSelector disabled={held || busy} onVerifiedChange={setCallerIdSid} />
     <div className="sticky top-0 z-10 grid grid-cols-[2fr_1fr_1fr] gap-2 rounded-xl bg-surface p-2">
       <button className={filterControl} disabled={held || busy || !listId || !callerIdSid || status === "limit"} onClick={() => { setPaused(false); void session.current?.start(); }}>Start session</button>
       <button className={filterControl} onClick={stopSession}>Pause</button>
-      <button className={filterControl} onClick={stopSession}>Stop</button>
+      <button className={filterControl} onClick={endSession}>End session</button>
     </div>
-    <p className="text-sm">Start session prepares your microphone and calls the first lead. Then call this list one at a time, with a cancellable 5-second pause after server-confirmed completion. Pause/Stop prevents future calls; use Hang up to end current audio. This delay provides wrap-up time, not protection from spam labels.</p>
-    {sessionState.countdown > 0 && <p role="status">Next call in {sessionState.countdown} seconds — Pause or Stop to cancel.</p>}
+    <p className="text-sm">Start session prepares your microphone and calls the first lead. Then call this list one at a time, with a cancellable 5-second pause after server-confirmed completion. Hang up ends this call and keeps the session going after server confirmation. Pause stops future calls without hanging up; End session stops future calls and hangs up current audio. This delay provides wrap-up time, not protection from spam labels.</p>
+    {sessionState.countdown > 0 && <p role="status">Next call in {sessionState.countdown} seconds — Pause or End session to cancel.</p>}
     {paused && <p role="status">Session paused. Finish any held call and wrap-up, then explicitly Start session. Use Next Lead to skip an already attempted lead.</p>}
     {sessionState.error && <p role="alert">{sessionState.error}</p>}
-    <BrowserCallControls voice={voice} controller={controller} disabled={busy || sessionState.active} />
-    <details className="rounded-xl border border-border bg-surface p-3">
+    <BrowserCallControls voice={voice} controller={controller} disabled={busy || sessionState.active} sessionActive={sessionState.active} />
+    {!sessionState.active && <details className="rounded-xl border border-border bg-surface p-3">
       <summary className="min-h-11 cursor-pointer py-2 font-medium">Advanced filters &amp; manual review</summary>
     <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
 
@@ -147,7 +153,7 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
       <button className={filterControl + " sm:w-auto"} disabled={held || busy || status === "limit"} onClick={() => { setPaused(false); void advance(false); }}>{lead ? "Next Lead" : "Load Lead"}</button>
       {paused && <button className={filterControl} disabled={held || busy} onClick={() => setPaused(false)}>Resume</button>}
     </div>
-    </details>
+    </details>}
     <p className="text-sm text-amber-800">Calling unavailable until mic and server authorization succeed. Eligible authorized leads only; one-hour call limit. Recording and phone-app fallback disabled.</p>
     {error && <p role="alert">{error}</p>}
     {busy && <p role="status">Loading…</p>}
@@ -157,10 +163,10 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
     {lead && <section className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6">
       <h2 className="break-words text-xl font-bold">{lead.businessName}</h2>
       <p className="break-words">{lead.contactName ?? "—"} · {lead.phone ?? "No phone"}</p>
-      <button className={filterControl + " mt-3 sm:w-auto"} disabled={held || busy || paused || !voice.ready || !callerIdSid || !lead.phone} onClick={() => { if (!lock.current) void controller.current?.start(lead.id, callerIdSid); }}>Call</button>
+      {!sessionState.active && <button className={filterControl + " mt-3 sm:w-auto"} disabled={held || busy || paused || !voice.ready || !callerIdSid || !lead.phone} onClick={() => { if (!lock.current) void controller.current?.start(lead.id, callerIdSid); }}>Call</button>}
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <label>Disposition<select className={filterControl} value={disposition} disabled={busy} onChange={e => setDisposition(e.target.value)}>{SDR_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}</select></label>
-        <button className={filterControl} onClick={() => advance(true)} disabled={held || paused || busy}>Save &amp; Next</button>
+        {!sessionState.active && <button className={filterControl} onClick={() => advance(true)} disabled={held || paused || busy}>Save &amp; Next</button>}
         {held ? <span className={filterControl + " opacity-50"} aria-disabled="true">Open Lead — held during call</span> : <Link className={filterControl} href={`/dashboard/leads/${lead.id}`}>Open Lead</Link>}
       </div>
     </section>}

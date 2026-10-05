@@ -39,7 +39,7 @@ it("real handlers progress through authorized named-list members once and finish
   fireEvent.click(screen.getByRole("button", { name: "Save & Next" })); await screen.findByText("No eligible unreviewed leads in this selection.");
   expect(m.update).toHaveBeenCalledTimes(2);
   expect(fetcher.mock.calls.at(-1)?.[0]).toContain("exclude=one&exclude=two");
-  fireEvent.click(screen.getByRole("button", { name: "Stop" }));
+  fireEvent.click(screen.getByRole("button", { name: "End session" }));
   fireEvent.click(screen.getByRole("button", { name: "Load Lead" })); await screen.findByText("No eligible unreviewed leads in this selection.");
 });
 it("bounds a review session at 100 without evicting exclusions or making an over-limit request", async () => {

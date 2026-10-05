@@ -2,15 +2,19 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { DialerPanel } from "@/components/dialer/dialer-panel";
-const m = vi.hoisted(() => ({ microphone: vi.fn(), createDevice: vi.fn() }));
-vi.mock("@/components/dialer/voice-sdk-adapter", () => ({ browserDependencies: { ...m, fetch: (...args: Parameters<typeof fetch>) => fetch(...args), schedule: () => 1, cancel: vi.fn() } }));
+const m = vi.hoisted(() => ({ microphone: vi.fn(), createDevice: vi.fn(), schedule: vi.fn(), cancel: vi.fn() }));
+vi.mock("@/components/dialer/voice-sdk-adapter", () => ({ browserDependencies: { ...m, fetch: (...args: Parameters<typeof fetch>) => fetch(...args), schedule: (...args: unknown[]) => m.schedule(...args), cancel: (...args: unknown[]) => m.cancel(...args) } }));
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 const sid = "PN" + "1".repeat(32);
 const click = (name: string) => fireEvent.click(screen.getByRole("button", { name }));
-async function setup() {
+async function setup(polling = false) {
+  m.schedule.mockImplementation(polling ? (fn: () => void, delay: number) => setTimeout(fn, delay) : () => 1);
+  m.cancel.mockImplementation(polling ? clearTimeout : () => undefined);
+  m.microphone.mockClear();
   let intent: unknown = null;
   let leadIndex = 0;
-  const call = { on: vi.fn(), disconnect: vi.fn(), mute: vi.fn(), sendDigits: vi.fn() };
+  const events = new Map<string, () => void>();
+  const call = { on: vi.fn((event: string, fn: () => void) => events.set(event, fn)), disconnect: vi.fn(() => events.get("disconnect")?.()), mute: vi.fn(), sendDigits: vi.fn() };
   const device = { on: vi.fn(), connect: vi.fn(async () => call), destroy: vi.fn(), updateToken: vi.fn() };
   m.microphone.mockResolvedValue(undefined); m.createDevice.mockResolvedValue(device);
   const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -25,7 +29,7 @@ async function setup() {
   });
   vi.stubGlobal("fetch", fetcher); render(<DialerPanel smartViews={[]} />);
   await waitFor(() => expect((screen.getByRole("button", { name: "Load lists" }) as HTMLButtonElement).disabled).toBe(false));
-  return { device, call, fetcher, terminal: () => { intent = { id: "intent-1", leadId: "lead-1", state: "terminal", parentStatus: "completed", childStatus: "completed", locked: false, canStartNewIntent: true, recording: "do-not-record", expiresAt: "2026", finishedAt: null }; } };
+  return { device, call, fetcher, emit: (event: string) => events.get(event)?.(), terminal: (overrides = {}) => { intent = { id: "intent-1", leadId: "lead-1", state: "terminal", parentStatus: "completed", childStatus: "completed", locked: false, canStartNewIntent: true, recording: "do-not-record", expiresAt: "2026", finishedAt: null, ...overrides }; } };
 }
 async function select() {
   click("Load lists"); await screen.findByRole("option", { name: "Selected list" });
@@ -38,7 +42,7 @@ it("requires explicit list and number; Start session prepares and calls, Pause c
   expect((screen.getByRole("button", { name: "Start session" }) as HTMLButtonElement).disabled).toBe(true);
   await select(); click("Start session");
   await waitFor(() => expect(f.device.connect).toHaveBeenCalledTimes(1));
-  for (const name of ["Pause", "Stop", "Hang up"]) expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false);
+  for (const name of ["Pause", "End session", "Hang up"]) expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false);
   fireEvent.change(screen.getByLabelText("Disposition"), { target: { value: "follow_up_needed" } });
   f.terminal(); click("Check server status"); await screen.findByText(/Next call in 5 seconds/);
   vi.useFakeTimers();
@@ -59,6 +63,101 @@ async function settled(f: Awaited<ReturnType<typeof setup>>) {
   f.terminal(); await act(async () => { click("Check server status"); });
   expect(screen.getByText(/Next call in 5 seconds/)).toBeTruthy();
 }
+it("Hang up within a session waits for authoritative settlement then calls next without manual steps", async () => {
+  const f = await started();
+  click("Hang up");
+  expect(f.call.disconnect).toHaveBeenCalledTimes(1);
+  await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  await settled(f);
+  await act(async () => { await vi.advanceTimersByTimeAsync(4999); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  expect(m.microphone).toHaveBeenCalled();
+});
+it("active session hides manual steps and End session tears down audio without releasing the hold or continuing", async () => {
+  const f = await started();
+  for (const name of ["Prepare browser calling", "Call", "Save & Next"]) expect(screen.queryByRole("button", { name })).toBeNull();
+  expect(screen.getByRole("button", { name: "Hang up" })).toBeTruthy();
+  click("End session");
+  expect(f.call.disconnect).toHaveBeenCalledTimes(1);
+  expect((screen.getByRole("button", { name: "Start session" }) as HTMLButtonElement).disabled).toBe(true);
+  f.terminal(); await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+  expect(screen.getByRole("button", { name: "Complete wrap-up" })).toBeTruthy();
+});
+it.each(["prepare", "queue", "connect"])("End session during pending %s ignores late completion", async stage => {
+  const f = await setup(); await select();
+  let release!: () => void;
+  if (stage === "prepare") m.microphone.mockImplementationOnce(() => new Promise<void>(r => { release = r; }));
+  if (stage === "connect") f.device.connect.mockImplementationOnce(() => new Promise(r => { release = () => r(f.call); }));
+  if (stage === "queue") {
+    const original = f.fetcher.getMockImplementation()!;
+    f.fetcher.mockImplementation((url, init) => String(url).includes("next-lead") ? new Promise(r => { release = () => r(Response.json({ lead: { id: "late", businessName: "Late", phone: "+12025550102", sdrStatus: "no_contact" } })); }) : original(url, init));
+  }
+  await act(async () => { click("Start session"); });
+  expect(release).toBeTypeOf("function");
+  click("End session");
+  vi.useFakeTimers();
+  await act(async () => { release(); await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(stage === "connect" ? 1 : 0);
+  expect(f.fetcher.mock.calls.filter(([url, init]) => url === "/api/dialer/intents" && init?.method === "POST")).toHaveLength(stage === "connect" ? 1 : 0);
+  if (stage === "connect") { expect(f.call.disconnect).toHaveBeenCalledOnce(); expect(f.device.destroy).toHaveBeenCalledOnce(); }
+});
+it("End session during countdown cancels progression immediately", async () => {
+  const f = await started(); await settled(f);
+  expect(screen.queryByRole("button", { name: "Complete wrap-up" })).toBeNull();
+  click("End session");
+  expect(f.call.disconnect).toHaveBeenCalledOnce();
+  await act(async () => { await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+});
+it.each(["cancel", "reject", "error"])("Hang up does not excuse SDK %s or rearm after recovery", async event => {
+  const f = await started();
+  f.call.disconnect.mockImplementationOnce(() => f.emit(event));
+  click("Hang up");
+  f.terminal(); await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+});
+it.each([{ childStatus: "failed" }, { childStatus: "canceled" }, { parentStatus: "failed" }, { parentStatus: "canceled" }, { state: "canceled" }, { childStatus: null }, { parentStatus: null }, { childStatus: "in-progress" }, { locked: true, canStartNewIntent: false }])("Hang up cannot advance on unsafe/incomplete server evidence %j", async overrides => {
+  const f = await started(); click("Hang up");
+  f.terminal(overrides); await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(10000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+});
+it("throwing local disconnect stops continuation even after successful reconciliation", async () => {
+  const f = await started(); f.call.disconnect.mockImplementationOnce(() => { throw new Error("SDK teardown failed"); });
+  click("Hang up");
+  f.terminal(); await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+});
+it("automatic polling completes Start → Hang up → next → End with one microphone preparation", async () => {
+  const f = await setup(true); await select(); vi.useFakeTimers();
+  await act(async () => { click("Start session"); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  f.terminal({ state: "connected", parentStatus: "in-progress", childStatus: "in-progress", locked: true, canStartNewIntent: false });
+  click("Hang up");
+  await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+  f.terminal();
+  await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+  expect(screen.getByText(/Next call in 5 seconds/)).toBeTruthy();
+  await act(async () => { await vi.advanceTimersByTimeAsync(4999); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  expect(m.microphone).toHaveBeenCalledTimes(1);
+  expect(f.fetcher.mock.calls.filter(([url, init]) => url === "/api/dialer/intents" && init?.method === "POST")).toHaveLength(2);
+  click("End session");
+  f.terminal({ id: "intent-2", leadId: "lead-2" });
+  await act(async () => { await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+});
 it("saves edited disposition before requesting and dialing the next excluded lead", async () => {
   const f = await started();
   fireEvent.change(screen.getByLabelText("Disposition"), { target: { value: "follow_up_needed" } });
@@ -100,7 +199,7 @@ it.each(["offline", "pagehide", "hidden", "unmount"])("%s cancels countdown and 
   await act(async () => { await vi.advanceTimersByTimeAsync(60000); });
   expect(f.device.connect).toHaveBeenCalledTimes(1);
 });
-it("Stop during disposition save allows the write to settle but never fetches or calls another lead", async () => {
+it("Pause during disposition save allows the write to settle but never fetches or calls another lead", async () => {
   const f = await started();
   fireEvent.change(screen.getByLabelText("Disposition"), { target: { value: "follow_up_needed" } });
   await settled(f);
@@ -108,7 +207,7 @@ it("Stop during disposition save allows the write to settle but never fetches or
   const original = f.fetcher.getMockImplementation()!;
   f.fetcher.mockImplementation((url, init) => init?.method === "PATCH" ? new Promise(r => { resolve = r; }) : original(url, init));
   await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
-  click("Stop");
+  click("Pause");
   await act(async () => { resolve(Response.json({ success: true })); await vi.advanceTimersByTimeAsync(20000); });
   expect(f.fetcher.mock.calls.filter(([url]) => String(url).includes("next-lead"))).toHaveLength(1);
   expect(f.device.connect).toHaveBeenCalledTimes(1); expect(f.call.disconnect).not.toHaveBeenCalled();

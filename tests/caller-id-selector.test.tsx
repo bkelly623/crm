@@ -101,5 +101,5 @@ it("requires manual selection, displays the chosen phone, and preserves review p
   click("Next Lead"); await screen.findByText(/No eligible unreviewed/);
   expect(selector.value).toBe(second.sid);
   expect(fetcher.mock.calls.some(([url]) => String(url).includes("listId=list-a&exclude=lead-a"))).toBe(true);
-  click("Stop"); expect(selector.value).toBe(second.sid);
+  click("End session"); expect(selector.value).toBe(second.sid);
 });

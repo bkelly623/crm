@@ -161,7 +161,13 @@ export class BrowserDialer {
   hangUp() {
     if (!this.snapshot.locked) return;
     if (this.call) {
-      try { this.call.disconnect(); } catch { /* Remain held if local teardown fails. */ }
+      // Intentional local teardown is not an audio failure. Keep the existing
+      // continuation eligibility (never restore it), but still await server proof.
+      // SDK cancel/reject/error and failed provider outcomes remain fail-closed.
+      this.set({ phase: "reconciling" });
+      try { this.call.disconnect(); } catch { this.uncertain(); }
+      this.poll();
+      return;
     } else if (this.device) {
       ++this.generation;
       try { this.device.destroy(); } catch { /* Provider state still requires reconciliation. */ }
