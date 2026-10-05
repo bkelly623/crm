@@ -1,0 +1,47 @@
+{
+  "width": 320,
+  "scrollWidth": 320,
+  "hangup": {
+    "x": 164,
+    "y": 82,
+    "width": 132,
+    "height": 66
+  },
+  "toolbarPosition": "sticky",
+  "hit": true,
+  "reducedViewport": {
+    "height": 500,
+    "scrollWidth": 320,
+    "top": 82,
+    "bottom": 148,
+    "hit": true
+  },
+  "synthetic": true,
+  "notesSaved": true,
+  "taskSaved": true,
+  "noAutoResume": true,
+  "stickyHangupClicked": true,
+  "manualWrapupResumeSaveNextStart": true,
+  "writes": [
+    {
+      "path": "/api/leads/synthetic-one",
+      "body": {
+        "notes": "SYNTHETIC preserved provenance; callback requested"
+      }
+    },
+    {
+      "path": "/api/tasks",
+      "body": {
+        "leadId": "synthetic-one",
+        "note": "SYNTHETIC follow-up task",
+        "dueAt": "2026-10-12T10:30:00.000Z"
+      }
+    },
+    {
+      "path": "/api/leads/synthetic-one",
+      "body": {
+        "sdrStatus": "follow_up_needed"
+      }
+    }
+  ]
+}

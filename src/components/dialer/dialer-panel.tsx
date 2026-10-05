@@ -10,7 +10,7 @@ import { SDR_STATUSES } from "@/lib/leads/constants";
 import { REVIEW_SESSION_LIMIT } from "@/lib/leads/review";
 import { OrganizerSelect, filterControl } from "@/components/leads/organizer-select";
 interface SmartView { id: string; name: string }
-interface Lead { id: string; businessName: string; contactName: string | null; phone: string | null; sdrStatus: string }
+interface Lead { id: string; businessName: string; contactName: string | null; phone: string | null; sdrStatus: string; industry?: string | null; location?: string | null; website?: string | null }
 export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
   const { snapshot: voice, controller } = useBrowserDialer();
   const [callerIdSid, setCallerIdSid] = useState("");
@@ -173,6 +173,14 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
     {lead && <section className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6">
       <h2 className="break-words text-xl font-bold">{lead.businessName}</h2>
       <p className="break-words">{lead.contactName ?? "—"} · {lead.phone ?? "No phone"}</p>
+      <section aria-label="Caller context" className="mt-3 min-w-0 text-sm">
+        <dl className="space-y-2">
+          {([["Industry", lead.industry], ["Location", lead.location], ["Website", lead.website]] as const).map(([label, value]) => <div key={label}>
+            <dt className="font-medium">{label}</dt>
+            <dd className="[overflow-wrap:anywhere]">{value || "Not provided"}</dd>
+          </div>)}
+        </dl>
+      </section>
       {!sessionState.active && <button className={filterControl + " mt-3 sm:w-auto"} disabled={held || busy || paused || !voice.ready || !callerIdSid || !lead.phone} onClick={() => { if (!lock.current) void controller.current?.start(lead.id, callerIdSid); }}>Call</button>}
       {!editing && <button className={filterControl + " mt-3"} disabled={busy} onClick={() => { if (lock.current) return; editingRef.current = true; stopSession(); setEditing(true); }}>Notes &amp; follow-up</button>}
       {editing && <InlineLeadWork key={lead.id} leadId={lead.id} onClose={() => { editingRef.current = false; setEditing(false); }} />}
