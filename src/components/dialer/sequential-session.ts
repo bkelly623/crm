@@ -71,8 +71,14 @@ export class SequentialSession {
       }
       if (!this.valid(epoch)) return;
       if (!this.dialer.snapshot.ready) throw new Error("Audio unavailable. Start again explicitly after resolving the error.");
-      const leadId = await this.deps.next(advance);
+      let leadId = await this.deps.next(advance);
       if (!this.valid(epoch)) return;
+      // Explicit restart after manual settlement skips this mounted session's
+      // attempted lead rather than deadlocking or silently redialing it.
+      if (!advance && leadId && this.attempted.has(leadId)) {
+        leadId = await this.deps.next(true);
+        if (!this.valid(epoch)) return;
+      }
       if (!leadId) { this.stop(); return; }
       if (this.attempted.has(leadId)) throw new Error("Lead already attempted in this session. Select the next lead; no automatic retry.");
       if (advance) this.dialer.wrapUp();

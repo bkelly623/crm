@@ -172,7 +172,6 @@ it("auto-next proof requires both terminal legs and never recovers after an erro
 
 it.each([
   { parentStatus: "failed", childStatus: "completed" },
-  { parentStatus: "completed", childStatus: "failed" },
   { parentStatus: "canceled", childStatus: "completed" },
   { parentStatus: "completed", childStatus: "canceled" },
 ])("failed/canceled server legs $parentStatus/$childStatus preserve release proof and manual recovery", async legs => {

@@ -8,6 +8,8 @@ export function matches(row: Row, input: unknown): boolean {
     if (key === "OR") return (value as unknown[]).some(part => matches(row, part));
     if (value === null || typeof value !== "object") return row[key] === value;
     const test = value as Row;
+    if ("none" in test) return !(row[key] as Row[]).some(link => matches(link, test.none));
+    if ("gte" in test) return row[key] != null && new Date(row[key] as string).getTime() >= new Date(test.gte as string).getTime();
     if ("some" in test) return (row[key] as Row[]).some(link => matches(link, test.some));
     if ("contains" in test) return String(row[key] ?? "").toLowerCase().includes(String(test.contains).toLowerCase());
     if ("not" in test) return row[key] !== test.not;
@@ -18,5 +20,5 @@ export function matches(row: Row, input: unknown): boolean {
   });
 }
 export function fixtureLead(id: string, extra: Row = {}): Row {
-  return { id, businessName: `Fixture ${id}`, phone: "15550000000", contactName: null, email: null, setterId: "rep", closerId: null, segment: "active", sdrStatus: "no_contact", lists: [], tags: [], ...extra };
+  return { id, businessName: `Fixture ${id}`, phone: "15550000000", contactName: null, email: null, setterId: "rep", closerId: null, segment: "active", sdrStatus: "no_contact", lists: [], tags: [], calls: [], ...extra };
 }

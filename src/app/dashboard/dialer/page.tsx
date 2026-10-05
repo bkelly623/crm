@@ -5,6 +5,8 @@ import { Headphones } from "lucide-react";
 import { DialerPanel } from "@/components/dialer/dialer-panel";
 import { getCurrentProfile } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getCallsToday } from "@/lib/calls/today";
+import { CallsTodayCard } from "@/components/dashboard/calls-today-card";
 
 export default async function DialerPage() {
   const profile = await getCurrentProfile();
@@ -15,6 +17,7 @@ export default async function DialerPage() {
     where: { userId: profile.id },
     orderBy: { createdAt: "asc" },
   });
+  const callsToday = await getCallsToday(profile);
 
   return (
     <div className="min-w-0 p-4 pb-8 sm:p-6 lg:p-8">
@@ -35,6 +38,7 @@ export default async function DialerPage() {
         </Link>
       </div>
 
+      <div className="my-4"><CallsTodayCard initial={callsToday} /></div>
       <DialerPanel smartViews={smartViews} />
     </div>
   );

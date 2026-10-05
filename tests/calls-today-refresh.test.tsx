@@ -1,0 +1,72 @@
+// @vitest-environment jsdom
+import { act, cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+const m = vi.hoisted(() => ({ profile: vi.fn(), count: vi.fn() }));
+vi.mock("@/lib/auth", () => ({ getCurrentProfile: m.profile }));
+vi.mock("@/lib/prisma", () => ({ prisma: { call: { count: m.count }, lead: { count: vi.fn(async () => 0) }, task: { count: vi.fn(async () => 0) }, smartView: { findMany: vi.fn(async () => []) } } }));
+vi.mock("@/components/dialer/dialer-panel", () => ({ DialerPanel: () => <div>Call controls</div> }));
+import Home from "@/app/dashboard/page";
+import { CallsTodayCard } from "@/components/dashboard/calls-today-card";
+import Dialer from "@/app/dashboard/dialer/page";
+const snapshot = (count: number, day = "2026-10-04") => ({ count, timezone: "America/New_York", day, endsAt: day === "2026-10-04" ? "2026-10-05T04:00:00Z" : "2026-10-06T04:00:00Z", checkedAt: new Date().toISOString() });
+const response = (count: number, day?: string) => ({ ok: true, json: async () => snapshot(count, day) });
+beforeEach(() => {
+  vi.useFakeTimers(); vi.setSystemTime(new Date("2026-10-05T03:59:59Z"));
+  m.profile.mockResolvedValue({ id: "actor", role: "sales_rep", email: "fixture@example.test", timezone: "America/New_York" }); m.count.mockResolvedValue(3);
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+});
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.clearAllMocks(); });
+it.each([["Home", Home], ["Dialer", Dialer]] as const)("%s refreshes an open yesterday counter at actor midnight and after persisted calls, never increments locally", async (_name, Page) => {
+  const fetcher = vi.fn().mockResolvedValue(response(3)); vi.stubGlobal("fetch", fetcher);
+  await act(async () => { render(await Page()); });
+  expect(screen.getByText("3")).toBeTruthy();
+  fetcher.mockResolvedValue(response(0, "2026-10-05"));
+  await act(async () => { await vi.advanceTimersByTimeAsync(1100); });
+  expect(screen.queryByText("3")).toBeNull(); expect(screen.getAllByText("0").length).toBeGreaterThan(0);
+  fetcher.mockResolvedValue(response(1, "2026-10-05"));
+  await act(async () => { await vi.advanceTimersByTimeAsync(15_000); });
+  expect(screen.getByText("1")).toBeTruthy();
+  await act(async () => { await vi.advanceTimersByTimeAsync(30_000); });
+  expect(screen.getByText("1")).toBeTruthy();
+  expect(fetcher).toHaveBeenCalledWith("/api/calls/today", expect.objectContaining({ cache: "no-store", credentials: "same-origin" }));
+});
+it("aborts superseded reads and ignores their late results, including after unmount", async () => {
+  let resolveOld!: (value: unknown) => void;
+  const fetcher = vi.fn().mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve; })).mockResolvedValue(response(1));
+  vi.stubGlobal("fetch", fetcher);
+  await act(async () => { render(<CallsTodayCard initial={snapshot(3)} />); });
+  await act(async () => { window.dispatchEvent(new Event("focus")); });
+  expect(screen.getByText("1")).toBeTruthy();
+  expect(fetcher.mock.calls[0][1].signal.aborted).toBe(true);
+  await act(async () => { resolveOld(response(99)); });
+  expect(screen.queryByText("99")).toBeNull();
+  cleanup();
+  expect(fetcher.mock.calls[1][1].signal.aborted).toBe(true);
+});
+it("bounds a hung read and does not display a stale count as current", async () => {
+  vi.setSystemTime(new Date("2026-10-05T03:00:00Z"));
+  const fetcher = vi.fn(() => new Promise(() => {})); vi.stubGlobal("fetch", fetcher);
+  await act(async () => { render(<CallsTodayCard initial={snapshot(3)} />); });
+  await act(async () => { await vi.advanceTimersByTimeAsync(8000); });
+  expect(screen.queryByText("3")).toBeNull(); expect(screen.getByText(/Count unavailable/)).toBeTruthy();
+});
+it("hides expired data on failed rollover and refreshes on visibility/focus without polling hidden tabs", async () => {
+  const fetcher = vi.fn().mockResolvedValue(response(3)); vi.stubGlobal("fetch", fetcher);
+  await act(async () => { render(await Home()); });
+  fetcher.mockRejectedValue(new Error("offline"));
+  await act(async () => { await vi.advanceTimersByTimeAsync(1100); });
+  expect(screen.queryByText("3")).toBeNull(); expect(screen.getByText(/Count unavailable/)).toBeTruthy();
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+  await act(async () => { document.dispatchEvent(new Event("visibilitychange")); });
+  const before = fetcher.mock.calls.length;
+  await act(async () => { await vi.advanceTimersByTimeAsync(60_000); }); expect(fetcher).toHaveBeenCalledTimes(before);
+  fetcher.mockResolvedValue(response(2, "2026-10-05"));
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+  await act(async () => { document.dispatchEvent(new Event("visibilitychange")); });
+  expect(screen.getByText("2")).toBeTruthy();
+  fetcher.mockResolvedValue(response(4, "2026-10-05"));
+  await act(async () => { window.dispatchEvent(new Event("focus")); });
+  expect(screen.getByText("4")).toBeTruthy();
+  cleanup(); const last = fetcher.mock.calls.length;
+  await act(async () => { await vi.advanceTimersByTimeAsync(60_000); }); expect(fetcher).toHaveBeenCalledTimes(last);
+});

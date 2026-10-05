@@ -1,3 +1,5 @@
+import { getCallsToday } from "@/lib/calls/today";
+import { CallsTodayCard } from "@/components/dashboard/calls-today-card";
 import { salesLeadScope } from "@/lib/leads/access";
 import { getCurrentProfile } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -20,13 +22,7 @@ export default async function DashboardPage() {
 
   const [leadCount, callCount, openTasks] = await Promise.all([
     prisma.lead.count({ where: { AND: [scope, { segment: "active" }] } }),
-    prisma.call.count({
-      where: {
-        userId: profile.id,
-        lead: scope,
-        startedAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
-      },
-    }),
+    getCallsToday(profile),
     prisma.task.count({ where: { userId: profile.id, status: "open", lead: scope } }),
   ]);
 
@@ -44,7 +40,7 @@ export default async function DashboardPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <StatCard label="Active leads" value={leadCount} />
-        <StatCard label="Your calls today (server time)" value={callCount} />
+        <CallsTodayCard initial={callCount} />
         <StatCard label="Your open tasks" value={openTasks} />
       </div>
 

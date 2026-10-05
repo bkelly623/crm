@@ -179,11 +179,52 @@ it.each(["cancel", "reject", "error"])("Hang up does not excuse SDK %s or rearm 
   expect(f.device.connect).toHaveBeenCalledTimes(1);
   expect(screen.queryByText(/Next call in/)).toBeNull();
 });
-it.each([{ childStatus: "failed" }, { childStatus: "canceled" }, { parentStatus: "failed" }, { parentStatus: "canceled" }, { state: "canceled" }, { childStatus: null }, { parentStatus: null }, { childStatus: "in-progress" }, { locked: true, canStartNewIntent: false }])("Hang up cannot advance on unsafe/incomplete server evidence %j", async overrides => {
+it.each([{ childStatus: "canceled" }, { parentStatus: "failed" }, { parentStatus: "canceled" }, { state: "canceled" }, { childStatus: null }, { parentStatus: null }, { childStatus: "in-progress" }, { locked: true, canStartNewIntent: false }])("Hang up cannot advance on unsafe/incomplete server evidence %j", async overrides => {
   const f = await started(); click("Hang up");
   f.terminal(overrides); await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(10000); });
   expect(f.device.connect).toHaveBeenCalledTimes(1);
   expect(screen.queryByText(/Next call in/)).toBeNull();
+});
+it.each(["failed", "busy", "no-answer"])("recipient %s waits for both legs and release then automatically calls a distinct lead", async childStatus => {
+  const f = await setup(true); await select(); vi.useFakeTimers();
+  await act(async () => { click("Start session"); });
+  f.terminal({ childStatus, parentStatus: "in-progress", locked: true, canStartNewIntent: false, state: "dialing" });
+  await act(async () => { f.emit("disconnect"); await vi.advanceTimersByTimeAsync(1000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  f.terminal({ childStatus });
+  await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+  expect(screen.getByText(/Next call in 5 seconds/)).toBeTruthy();
+  await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  const posts = f.fetcher.mock.calls.filter(([url, init]) => url === "/api/dialer/intents" && init?.method === "POST");
+  expect(posts.map(([, init]) => JSON.parse(String(init?.body)).leadId)).toEqual(["lead-1", "lead-2"]);
+  expect(screen.queryByRole("button", { name: "Complete wrap-up" })).toBeNull();
+});
+it.each([{ parentStatus: null }, { parentStatus: "in-progress" }, { locked: true }, { canStartNewIntent: false }, { id: "wrong-intent" }])("failed recipient remains held on incomplete/ambiguous evidence %j", async overrides => {
+  const f = await started(); f.terminal({ childStatus: "failed", ...overrides });
+  await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+});
+it.each(["error", "cancel", "reject"])("recipient failure cannot rearm after SDK %s", async event => {
+  const f = await started();
+  await act(async () => { f.emit(event); });
+  f.terminal({ childStatus: "failed" });
+  await act(async () => { click("Check server status"); await vi.advanceTimersByTimeAsync(20000); });
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText(/Next call in/)).toBeNull();
+});
+it.each(["provider", "device"])("explicit Start after %s failure and manual settlement selects next, never retries failed lead", async failure => {
+  const f = await started();
+  if (failure === "device") await act(async () => { f.emit("error"); });
+  f.terminal(failure === "provider" ? { parentStatus: "failed", childStatus: "failed" } : { childStatus: "failed" });
+  await act(async () => { click("Check server status"); });
+  click("Complete wrap-up");
+  expect((screen.getByRole("button", { name: "Start session" }) as HTMLButtonElement).disabled).toBe(false);
+  await act(async () => { click("Start session"); });
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  const posts = f.fetcher.mock.calls.filter(([url, init]) => url === "/api/dialer/intents" && init?.method === "POST");
+  expect(posts.map(([, init]) => JSON.parse(String(init?.body)).leadId)).toEqual(["lead-1", "lead-2"]);
 });
 it("throwing local disconnect stops continuation even after successful reconciliation", async () => {
   const f = await started(); f.call.disconnect.mockImplementationOnce(() => { throw new Error("SDK teardown failed"); });

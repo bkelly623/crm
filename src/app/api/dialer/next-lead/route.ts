@@ -39,6 +39,9 @@ export async function GET(request: Request) {
         ...(setterId ? [{ setterId }] : []), ...(myLeadsOnly ? [{ setterId: profile.id }] : []), ...(sdrStatus ? [{ sdrStatus }] : []),
         { segment: "active", sdrStatus: { in: ["no_contact", "follow_up_needed", "callback_scheduled"] }, phone: { not: null } },
         { phone: { not: "" } }, { id: { notIn: [...new Set(exclude)] } },
+        // Persisted recipient outcomes survive refresh/new sessions and span
+        // lists/reps. Review/detail and callback tasks remain untouched.
+        { calls: { none: { status: { in: ["failed", "busy", "no_answer", "canceled"] }, startedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } } } },
       ] }, orderBy: { id: "asc" },
     });
     return NextResponse.json({ lead });

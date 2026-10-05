@@ -123,8 +123,10 @@ export class BrowserDialer {
     this.intent = intent; this.intentId = intent.id;
     const proven = intent.canStartNewIntent === true && !intent.locked && ["terminal", "expired", "canceled"].includes(intent.state);
     const terminal = (status: string | null) => status !== null && ["completed", "busy", "failed", "no-answer", "canceled"].includes(status);
-    // Terminal release proves the lease is settled, not that continuing is safe.
-    const failed = intent.state === "canceled" || [intent.parentStatus, intent.childStatus].some(status => status === "failed" || status === "canceled");
+    // A recipient failure is an outcome, not a browser/device failure. It may
+    // arrive before parent settlement; wait for proof without poisoning opt-in.
+    // Parent failures and cancellations still revoke continuation permanently.
+    const failed = intent.state === "canceled" || intent.parentStatus === "failed" || intent.parentStatus === "canceled" || intent.childStatus === "canceled";
     this.set({ locked: true, terminalProof: proven && terminal(intent.parentStatus) && terminal(intent.childStatus), phase: proven ? "wrapup" : intent.state === "connected" && intent.childStatus === "in-progress" ? "connected" : intent.state === "ringing" ? "ringing" : "reconciling", error: failed ? "Call failed or was canceled. Review the call before starting again manually." : "" });
   }
   wrapUp() {
@@ -132,7 +134,7 @@ export class BrowserDialer {
     ++this.generation; this.stopPoll();
     this.call?.disconnect(); this.call = undefined;
     this.intent = undefined; this.intentId = undefined; this.issuanceAttempted = false;
-    this.set({ locked: false, hasCall: false, muted: false, phase: this.snapshot.ready ? "ready" : "review" });
+    this.set({ locked: false, hasCall: false, muted: false, error: "", phase: this.snapshot.ready ? "ready" : "review" });
   }
   async check(reconcile = false) {
     if (this.dead || this.snapshot.checking) return;
@@ -163,7 +165,7 @@ export class BrowserDialer {
     if (this.call) {
       // Intentional local teardown is not an audio failure. Keep the existing
       // continuation eligibility (never restore it), but still await server proof.
-      // SDK cancel/reject/error and failed provider outcomes remain fail-closed.
+      // SDK cancel/reject/error and parent failures remain fail-closed.
       this.set({ phase: "reconciling" });
       try { this.call.disconnect(); } catch { this.uncertain(); }
       this.poll();

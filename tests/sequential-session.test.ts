@@ -42,7 +42,6 @@ it.each(["parentStatus", "childStatus"])("does not count down with nonterminal %
 });
 it.each([
   ["failed parent", { parentStatus: "failed" }],
-  ["failed child", { childStatus: "failed" }],
   ["canceled parent", { parentStatus: "canceled" }],
   ["canceled child", { childStatus: "canceled" }],
   ["canceled intent", { state: "canceled" }],
@@ -65,7 +64,7 @@ it.each([
   expect(f.dialer.snapshot.locked).toBe(true);
   f.dialer.wrapUp(); expect(f.dialer.snapshot.locked).toBe(false);
 });
-it.each(["completed", "busy", "no-answer"])("non-error child outcome %s permits terminal continuation", async childStatus => {
+it.each(["completed", "failed", "busy", "no-answer"])("settled recipient outcome %s permits terminal continuation", async childStatus => {
   const f = await fixture(); await f.session.start(); await f.settle({ childStatus });
   expect(f.session.snapshot.countdown).toBe(5);
   await vi.advanceTimersByTimeAsync(5000);

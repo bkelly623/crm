@@ -85,6 +85,25 @@ it.each([leads, queue])("unknown tag fails closed instead of broadening selectio
   m.tag.mockResolvedValue(null); expect((await handler(request(`tagId=${tagId}`))).status).toBe(404);
   expect(m.many).not.toHaveBeenCalled(); expect(m.first).not.toHaveBeenCalled();
 });
+it.each(["failed", "busy", "no_answer", "canceled"])("persisted %s prevents immediate queue repeat without browser exclusions but expires after 24h", async status => {
+  vi.useFakeTimers();
+  try {
+    vi.setSystemTime(new Date("2026-10-05T12:00:00Z"));
+    const rows = [fixtureLead("a", { calls: [{ status, startedAt: new Date("2026-10-05T11:00:00Z"), userId: "other-rep" }] }), fixtureLead("b")];
+    m.first.mockImplementation(({ where }) => Promise.resolve(rows.find(row => matches(row, where)) ?? null));
+    for (let reload = 0; reload < 2; reload++) expect((await (await queue(request())).json()).lead.id).toBe("b");
+    // Ordinary lead review remains available and no disposition/task is mutated.
+    m.many.mockImplementation(({ where }) => Promise.resolve(rows.filter(row => matches(row, where))));
+    expect((await (await leads(request())).json()).leads.map((row: { id: string }) => row.id)).toEqual(["a", "b"]);
+    vi.setSystemTime(new Date("2026-10-06T11:00:00.001Z"));
+    expect((await (await queue(request())).json()).lead.id).toBe("a");
+  } finally { vi.useRealTimers(); }
+});
+it("queue retains scheduled callbacks without recent failure and ignores unrelated historic outcomes", async () => {
+  const rows = [fixtureLead("callback", { sdrStatus: "callback_scheduled", calls: [{ status: "completed", startedAt: new Date() }] })];
+  m.first.mockImplementation(({ where }) => Promise.resolve(rows.find(row => matches(row, where)) ?? null));
+  expect((await (await queue(request())).json()).lead.id).toBe("callback");
+});
 const request = (q = "") => new Request(`http://localhost/api/test?${q}`);
 beforeEach(() => { vi.resetAllMocks(); m.profile.mockResolvedValue({ id: "rep", role: "sales_rep" }); m.many.mockResolvedValue([]); m.first.mockResolvedValue(null); });
 it.each(["client", "hiring_manager", "project_manager", "unknown"])("denies %s on list and queue before DB", async role => {
