@@ -41,6 +41,8 @@ export class BrowserDialer {
   constructor(private deps: DialerDependencies) {}
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   getSnapshot = () => this.snapshot;
+  // Read-only identity of the existing proof; does not change release criteria.
+  get terminalIntentId() { return this.snapshot.terminalProof ? this.intent?.id : undefined; }
   private set(patch: Partial<typeof this.snapshot>) {
     if (this.dead) return;
     this.snapshot = { ...this.snapshot, ...patch, ...(patch.error ? { autoAdvanceSafe: false } : {}) }; this.listeners.forEach(fn => fn());

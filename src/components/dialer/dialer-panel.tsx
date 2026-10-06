@@ -15,7 +15,7 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
   const { snapshot: voice, controller } = useBrowserDialer();
   const [callerIdSid, setCallerIdSid] = useState("");
   const session = useRef<SequentialSession | null>(null);
-  const [sessionState, setSessionState] = useState({ active: false, countdown: 0, error: "" });
+  const [sessionState, setSessionState] = useState({ active: false, error: "" });
   const [editing, setEditing] = useState(false);
   const editingRef = useRef(false);
   const held = voice.locked || voice.preparing || sessionState.active || editing;
@@ -145,8 +145,7 @@ export function DialerPanel({ smartViews }: { smartViews: SmartView[] }) {
       <button className={filterControl + " text-red-700"} onClick={() => controller.current?.hangUp()}>Hang up current call</button>
     </div>}
     </div>
-    <p className="text-sm">Start session prepares your microphone and calls the first lead. Then call this list one at a time, with a cancellable 5-second pause after server-confirmed completion. Hang up ends this call and keeps the session going after server confirmation. Pause stops future calls without hanging up; End session stops future calls and hangs up current audio. This delay provides wrap-up time, not protection from spam labels.</p>
-    {sessionState.countdown > 0 && <p role="status">Next call in {sessionState.countdown} seconds — Pause or End session to cancel.</p>}
+    <p className="text-sm">Start session prepares your microphone and calls the first lead. Then call this list one at a time with no added inter-call delay: the next call starts as soon as both call legs are confirmed ended, the server releases the hold, and any edited disposition is saved. Hang up ends this call and keeps the session going after server confirmation. Pause stops future calls without hanging up; End session stops future calls and hangs up current audio. Pause before the call ends if you need time for notes or wrap-up.</p>
     {paused && <p role="status">Session paused. Finish any held call and wrap-up, then explicitly Start session. Use Next Lead to skip an already attempted lead.</p>}
     {sessionState.error && <p role="alert">{sessionState.error}</p>}
     <BrowserCallControls voice={voice} controller={controller} disabled={busy || sessionState.active} sessionActive={sessionState.active} />

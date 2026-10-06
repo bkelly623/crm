@@ -7,6 +7,7 @@ afterEach(() => { cleanups.splice(0).forEach(fn => fn()); vi.useRealTimers(); })
 async function fixture() {
   vi.useFakeTimers();
   let intent: unknown = null;
+  let issuedId = "intent-1", issuedLead = "lead-1", issuanceCount = 0;
   const events: Record<string, () => void> = {}, deviceEvents: Record<string, () => void> = {};
   const call = { on: vi.fn((event: string, cb: () => void) => { events[event] = cb; }), disconnect: vi.fn(), mute: vi.fn(), sendDigits: vi.fn() };
   const device = { on: vi.fn((event: string, cb: () => void) => { deviceEvents[event] = cb; }), connect: vi.fn(async () => call), destroy: vi.fn(), updateToken: vi.fn() };
@@ -14,7 +15,10 @@ async function fixture() {
   const fetcher = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
     if (String(url).includes("token")) return Response.json({ token: "fixture" });
     if (String(url).endsWith("/reconcile")) return Response.json({ intent });
-    if (init?.method === "POST") return Response.json({ intent: { id: "intent" }, callingAvailable: true, recording: "do-not-record" });
+    if (init?.method === "POST") {
+      issuedId = `intent-${++issuanceCount}`; issuedLead = JSON.parse(String(init.body)).leadId;
+      return Response.json({ intent: { id: issuedId }, callingAvailable: true, recording: "do-not-record" });
+    }
     return Response.json({ intent });
   });
   const dialer = new BrowserDialer({ microphone, createDevice: vi.fn(async () => device), schedule: () => 1 as unknown as ReturnType<typeof setTimeout>, cancel: vi.fn(), fetch: fetcher });
@@ -24,21 +28,30 @@ async function fixture() {
   const session = new SequentialSession(dialer, { selection: () => selection, next });
   cleanups.push(() => { session.dispose(); dialer.dispose(); });
   return { session, dialer, device, call, events, deviceEvents, next, microphone, fetcher, selection,
-    settle: async (patch = {}) => { intent = { ...terminal, ...patch }; await dialer.check(); } };
+    settle: async (patch = {}) => { intent = { ...terminal, id: issuedId, leadId: issuedLead, ...patch }; await dialer.check(); } };
 }
-it("explicit start prepares audio and calls once, then waits five seconds after server wrapup", async () => {
+it("advances immediately on both-leg release proof, once only, after queue/save readiness", async () => {
   const f = await fixture(); expect(f.device.connect).not.toHaveBeenCalled();
   await Promise.all([f.session.start(), f.session.start()]); expect(f.device.connect).toHaveBeenCalledTimes(1);
   f.events.disconnect(); await vi.advanceTimersByTimeAsync(10000); expect(f.device.connect).toHaveBeenCalledTimes(1);
-  await f.settle(); expect(f.session.snapshot.countdown).toBe(5);
-  await f.settle(); // duplicate status must not create a second timer
-  await vi.advanceTimersByTimeAsync(4999); expect(f.device.connect).toHaveBeenCalledTimes(1);
-  await vi.advanceTimersByTimeAsync(1); expect(f.device.connect).toHaveBeenCalledTimes(2);
+  const save = deferred<string>();
+  f.next.mockImplementation(() => save.promise);
+  const now = Date.now();
+  await f.settle();
+  expect(f.next).toHaveBeenCalledTimes(2);
   expect(f.next).toHaveBeenLastCalledWith(true);
+  await f.settle(); await f.settle(); // duplicate proof cannot start another save/advance
+  expect(f.next).toHaveBeenCalledTimes(2);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  save.resolve("lead-2");
+  await vi.advanceTimersByTimeAsync(0);
+  expect(Date.now()).toBe(now);
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
+  expect(f.next).toHaveBeenCalledTimes(2);
 });
-it.each(["parentStatus", "childStatus"])("does not count down with nonterminal %s even if server says released", async field => {
+it.each(["parentStatus", "childStatus"])("does not advance with nonterminal %s even if server says released", async field => {
   const f = await fixture(); await f.session.start(); await f.settle({ [field]: "in-progress" });
-  await vi.advanceTimersByTimeAsync(20000); expect(f.session.snapshot.countdown).toBe(0); expect(f.device.connect).toHaveBeenCalledTimes(1); expect(f.session.snapshot.active).toBe(false);
+  await vi.advanceTimersByTimeAsync(20000); expect(f.device.connect).toHaveBeenCalledTimes(1); expect(f.session.snapshot.active).toBe(false);
 });
 it.each([
   ["failed parent", { parentStatus: "failed" }],
@@ -57,7 +70,6 @@ it.each([
   await f.settle(); await f.dialer.reconcile();
   await vi.advanceTimersByTimeAsync(20000);
   expect(f.dialer.snapshot.autoAdvanceSafe).toBe(false);
-  expect(f.session.snapshot.countdown).toBe(0);
   expect(f.session.snapshot.active).toBe(false);
   expect(f.device.connect).toHaveBeenCalledTimes(1);
   expect(f.fetcher.mock.calls.filter(([url, init]) => url === "/api/dialer/intents" && init?.method === "POST")).toHaveLength(1);
@@ -66,19 +78,53 @@ it.each([
 });
 it.each(["completed", "failed", "busy", "no-answer"])("settled recipient outcome %s permits terminal continuation", async childStatus => {
   const f = await fixture(); await f.session.start(); await f.settle({ childStatus });
-  expect(f.session.snapshot.countdown).toBe(5);
-  await vi.advanceTimersByTimeAsync(5000);
+  await vi.advanceTimersByTimeAsync(0);
   expect(f.device.connect).toHaveBeenCalledTimes(2);
 });
-it.each(["active", "countdown", "queue"])("Stop immediately prevents future calls during %s without releasing or hanging up", async stage => {
+it.each(["active", "queue"])("Stop immediately prevents future calls during %s without releasing or hanging up", async stage => {
   const f = await fixture(); await f.session.start();
   let resolve!: (s: string) => void;
-  if (stage !== "active") await f.settle();
-  if (stage === "queue") { f.next.mockImplementation(() => new Promise(r => { resolve = r; })); await vi.advanceTimersByTimeAsync(5000); }
+  if (stage === "queue") { f.next.mockImplementation(() => new Promise(r => { resolve = r; })); await f.settle(); }
   f.session.stop();
   if (stage === "queue") resolve("lead-2");
   await vi.advanceTimersByTimeAsync(20000);
   expect(f.device.connect).toHaveBeenCalledTimes(1); expect(f.call.disconnect).not.toHaveBeenCalled(); expect(f.dialer.snapshot.locked).toBe(true);
+  expect(f.session.snapshot.active).toBe(false);
+});
+it.each(["before-proof", "same-turn-after-proof", "resolved-save"])("Pause race at %s revokes immediate continuation", async stage => {
+  const f = await fixture(); await f.session.start();
+  const save = deferred<string>(); f.next.mockImplementation(() => save.promise);
+  if (stage === "before-proof") f.session.stop();
+  const proof = f.settle();
+  if (stage === "same-turn-after-proof") f.session.stop();
+  await proof;
+  save.resolve("lead-2");
+  // Resolving a save does not defeat a synchronous Pause in the same turn.
+  if (stage === "resolved-save") f.session.stop();
+  await vi.advanceTimersByTimeAsync(60000);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.dialer.snapshot.locked).toBe(true);
+  expect(f.session.snapshot.active).toBe(false);
+  expect(f.call.disconnect).not.toHaveBeenCalled();
+  expect(f.next).toHaveBeenCalledTimes(stage === "resolved-save" ? 2 : 1);
+});
+it("duplicate notifications while the next intent is pending cannot replay queue or issue another intent", async () => {
+  const f = await fixture(); await f.session.start();
+  const issued = deferred<Response>();
+  const original = f.fetcher.getMockImplementation()!;
+  f.fetcher.mockImplementation((url, init) => init?.method === "POST" && url === "/api/dialer/intents" ? issued.promise : original(url, init));
+  await f.settle(); await vi.advanceTimersByTimeAsync(0);
+  await f.settle(); await f.settle();
+  expect(f.next).toHaveBeenCalledTimes(2);
+  expect(f.device.connect).toHaveBeenCalledTimes(1);
+  expect(f.fetcher.mock.calls.filter(([url, init]) => url === "/api/dialer/intents" && init?.method === "POST")).toHaveLength(2);
+  issued.resolve(Response.json({ intent: { id: "intent-2" }, callingAvailable: true, recording: "do-not-record" }));
+  await vi.advanceTimersByTimeAsync(0);
+  // The old fixture's proof is contradictory for the new intent: fail closed,
+  // never reuse it to issue a third call.
+  await f.settle(); await vi.advanceTimersByTimeAsync(60000);
+  expect(f.next).toHaveBeenCalledTimes(2);
+  expect(f.device.connect).toHaveBeenCalledTimes(2);
   expect(f.session.snapshot.active).toBe(false);
 });
 it("Stop during pending microphone prevents late first call", async () => {
@@ -109,7 +155,7 @@ it.each(["resolve", "reject"] as const)("fresh Start after interrupted microphon
   await oldRun;
   expect(f.dialer.snapshot.preparing).toBe(true);
   expect(f.dialer.snapshot.error).toBe("");
-  expect(f.session.snapshot).toEqual({ active: true, countdown: 0, error: "" });
+  expect(f.session.snapshot).toEqual({ active: true, error: "" });
   expect(f.next).not.toHaveBeenCalled();
   expect(f.device.connect).not.toHaveBeenCalled();
   newMic.resolve();
@@ -139,7 +185,7 @@ it.each(["resolve", "reject"] as const)("old microphone %s cannot release a newe
   if (outcome === "resolve") oldMic.resolve(); else oldMic.reject(new Error("old permission denied"));
   await oldRun;
   expect(f.dialer.snapshot).toEqual(voiceBefore);
-  expect(f.session.snapshot).toEqual({ active: true, countdown: 0, error: "" });
+  expect(f.session.snapshot).toEqual({ active: true, error: "" });
   expect(f.device.connect).toHaveBeenCalledTimes(1);
   expect(f.call.disconnect).not.toHaveBeenCalled();
   expect(f.device.destroy).not.toHaveBeenCalled();
@@ -154,7 +200,6 @@ it.each(["resolve", "reject"] as const)("old microphone %s cannot release a newe
   expect(f.next).toHaveBeenCalledTimes(2);
   save.resolve("lead-2"); await vi.advanceTimersByTimeAsync(20000);
   expect(f.device.connect).toHaveBeenCalledTimes(1);
-  expect(f.session.snapshot.countdown).toBe(0);
 });
 it("Stop detaches only microphone preparation so a fresh explicit Start can prepare", async () => {
   const f = await fixture(); const mic = deferred<void>();
@@ -207,14 +252,16 @@ it.each(["cancel", "reject"])("SDK %s immediately stops automation and cannot re
   expect(f.dialer.snapshot.terminalProof).toBe(true);
   expect(f.dialer.snapshot.autoAdvanceSafe).toBe(false);
   expect(f.session.snapshot.active).toBe(false);
-  expect(f.session.snapshot.countdown).toBe(0);
   expect(f.device.connect).toHaveBeenCalledTimes(1);
   expect(f.fetcher.mock.calls.filter(([url, init]) => url === "/api/dialer/intents" && init?.method === "POST")).toHaveLength(1);
   f.dialer.wrapUp(); expect(f.dialer.snapshot.locked).toBe(false);
 });
-it.each(["interrupt", "dispose"])("%s cancels a pending countdown", async action => {
-  const f = await fixture(); await f.session.start(); await f.settle();
+it.each(["interrupt", "dispose"])("%s cancels pending queue work", async action => {
+  const f = await fixture(); await f.session.start();
+  const queue = deferred<string>(); f.next.mockImplementation(() => queue.promise);
+  await f.settle();
   if (action === "dispose") f.session.dispose(); else f.dialer.interrupt();
+  queue.resolve("lead-2");
   await vi.advanceTimersByTimeAsync(20000); expect(f.device.connect).toHaveBeenCalledTimes(1);
 });
 it("queue/save failure stops without retry or losing the server hold", async () => {
@@ -234,7 +281,7 @@ it("intent failure never retries even after authoritative terminal recovery", as
   expect(f.fetcher.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1);
 });
 it("selection changes and duplicate leads never dial", async () => {
-  const f = await fixture(); await f.session.start(); await f.settle(); f.selection.callerIdSid = "changed";
+  const f = await fixture(); await f.session.start(); f.selection.callerIdSid = "changed"; await f.settle();
   await vi.advanceTimersByTimeAsync(10000); expect(f.device.connect).toHaveBeenCalledTimes(1);
   f.dialer.wrapUp(); f.next.mockResolvedValue("lead-1"); await f.session.start();
   expect(f.device.connect).toHaveBeenCalledTimes(1); expect(f.session.snapshot.error).toContain("already attempted");
@@ -251,14 +298,18 @@ it("exhausted queue stops without inventing another call", async () => {
   const f = await fixture(); await f.session.start(); f.next.mockResolvedValue(null); await f.settle();
   await vi.advanceTimersByTimeAsync(5000); expect(f.session.snapshot.active).toBe(false); expect(f.device.connect).toHaveBeenCalledTimes(1);
 });
-it("token refresh error during countdown requires manual recovery", async () => {
-  const f = await fixture(); await f.session.start(); await f.settle();
+it("token refresh error during queue work requires manual recovery", async () => {
+  const f = await fixture(); await f.session.start();
+  const queue = deferred<string>(); f.next.mockImplementation(() => queue.promise);
+  await f.settle();
   f.fetcher.mockResolvedValue(Response.json({}, { status: 401 })); await f.deviceEvents.tokenWillExpire();
+  queue.resolve("lead-2");
   await vi.advanceTimersByTimeAsync(20000); expect(f.session.snapshot.active).toBe(false); expect(f.device.connect).toHaveBeenCalledTimes(1);
 });
 it("selection invalidation during queue failure stops rather than stranding an active session", async () => {
-  const f = await fixture(); await f.session.start(); await f.settle();
+  const f = await fixture(); await f.session.start();
   f.next.mockImplementation(async () => { f.selection.listId = ""; throw new Error("queue rejected selection"); });
+  await f.settle();
   await vi.advanceTimersByTimeAsync(5000);
   expect(f.session.snapshot.active).toBe(false); expect(f.device.connect).toHaveBeenCalledTimes(1);
 });

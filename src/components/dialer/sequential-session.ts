@@ -7,14 +7,14 @@ interface Dependencies {
   next: (advance: boolean) => Promise<string | null>;
 }
 export class SequentialSession {
-  snapshot = { active: false, countdown: 0, error: "" };
+  snapshot = { active: false, error: "" };
   private epoch = 0;
   private dead = false;
   private working?: { preparing: boolean };
   private armed = false;
-  private timer?: ReturnType<typeof setTimeout>;
   private selected?: ReturnType<Dependencies["selection"]>;
   private attempted = new Set<string>();
+  private advancedIntents = new Set<string>();
   private listeners = new Set<() => void>();
   private unsubscribe: () => void;
   constructor(private dialer: BrowserDialer, private deps: Dependencies) {
@@ -27,13 +27,12 @@ export class SequentialSession {
   }
   stop(error = "") {
     ++this.epoch;
-    clearTimeout(this.timer); this.timer = undefined;
     this.armed = false;
     // Only preflight can be detached. Queue/save and intent work must finish
     // before another Start, even when their session epoch is no longer valid.
     const preparing = this.working?.preparing;
     if (preparing) this.working = undefined;
-    this.set({ active: false, countdown: 0, error });
+    this.set({ active: false, error });
     if (preparing && this.dialer.snapshot.preparing && !this.dialer.snapshot.locked) this.dialer.interrupt();
     // Deliberately do NOT interrupt an active call, wrap up, or release any call lock.
   }
@@ -53,7 +52,7 @@ export class SequentialSession {
     if (!selected.listId || !selected.callerIdSid) return;
     this.selected = { ...selected };
     const epoch = ++this.epoch;
-    this.set({ active: true, error: "", countdown: 0 });
+    this.set({ active: true, error: "" });
     await this.run(false, epoch);
   }
   private async run(advance: boolean, epoch: number) {
@@ -98,18 +97,18 @@ export class SequentialSession {
       this.stop("Session paused. Resolve the call/audio error; restarting requires your action."); return;
     }
     if (voice.phase === "wrapup" && !voice.terminalProof) { this.stop("Automatic next call needs both terminal legs. Review this call manually."); return; }
-    if (this.working || !this.armed || this.timer !== undefined || voice.phase !== "wrapup" || !voice.terminalProof) return;
-    this.armed = false;
-    this.set({ countdown: 5 });
+    if (this.working || !this.armed || voice.phase !== "wrapup" || !voice.terminalProof) return;
+    const intentId = this.dialer.terminalIntentId;
+    if (!intentId || this.advancedIntents.has(intentId)) return;
     const epoch = this.epoch;
-    const tick = () => {
-      this.timer = undefined;
-      if (!this.valid(epoch)) { if (epoch === this.epoch) this.stop("Selection changed. Start again explicitly."); return; }
-      this.set({ countdown: this.snapshot.countdown - 1 });
-      if (this.snapshot.countdown > 0) this.timer = setTimeout(tick, 1000);
-      else void this.run(true, epoch);
-    };
-    this.timer = setTimeout(tick, 1000);
+    if (!this.valid(epoch)) return;
+    // Bound by the same session attempt limit. A duplicate old proof received
+    // during the next issuance must not be adopted as that new call's completion.
+    this.advancedIntents.add(intentId);
+    // Consume this call's continuation before starting asynchronous save/queue
+    // work. Duplicate notifications cannot advance twice; no pacing timer or retry.
+    this.armed = false;
+    void this.run(true, epoch);
   }
   dispose() { this.stop(); this.dead = true; this.unsubscribe(); this.listeners.clear(); }
 }

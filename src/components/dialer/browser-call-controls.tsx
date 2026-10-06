@@ -10,7 +10,7 @@ const labels: Record<string, string> = {
 export function BrowserCallControls({ voice, controller, disabled, sessionActive = false }: { voice: BrowserDialer["snapshot"]; controller: RefObject<BrowserDialer | null>; disabled: boolean; sessionActive?: boolean }) {
   const button = filterControl + " min-h-[48px]";
   return <section aria-label="Browser calling" className="min-w-0 space-y-3 rounded-xl border border-border bg-surface p-4">
-    <p aria-live="polite">{sessionActive && voice.phase === "wrapup" ? "Call settled — next call follows automatically after the countdown" : labels[voice.phase]}</p>
+    <p aria-live="polite">{sessionActive && voice.phase === "wrapup" ? "Call settled — saving any edits and loading the next lead" : labels[voice.phase]}</p>
     {voice.pollingPaused && voice.locked && <p className="text-sm">Automatic status checks paused after the bounded check window. Use Check server status; this never redials or releases a hold without server proof.</p>}
     {voice.error && <p role="alert">{voice.error}</p>}
     {!voice.locked && !sessionActive && <>
@@ -18,7 +18,7 @@ export function BrowserCallControls({ voice, controller, disabled, sessionActive
       <button className={button} disabled={disabled || voice.preparing} onClick={() => void controller.current?.prepare()}>{voice.preparing ? "Preparing microphone…" : "Prepare browser calling"}</button>
     </>}
     {voice.locked && <>
-      {sessionActive ? <p className="text-sm">Session active. Hang up ends only this call; the next call waits for server confirmation and the countdown. End session stops calling.</p> : <p className="text-sm">Lead, list and caller ID are held. Browser disconnect does not end the server call. If this is a recovered call, audio cannot be reattached; wait for completion, then check server status. Do not start another call.</p>}
+      {sessionActive ? <p className="text-sm">Session active. Hang up ends only this call; the next call waits for both call legs to end, server release and any disposition save, with no added delay. End session stops calling.</p> : <p className="text-sm">Lead, list and caller ID are held. Browser disconnect does not end the server call. If this is a recovered call, audio cannot be reattached; wait for completion, then check server status. Do not start another call.</p>}
       <button className={button} disabled={voice.checking} onClick={() => void controller.current?.reconcile()}>Check server status</button>
       {!sessionActive && voice.phase === "wrapup" && <button className={button} disabled={disabled} onClick={() => controller.current?.wrapUp()}>Complete wrap-up</button>}
     </>}
